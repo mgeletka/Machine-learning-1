@@ -54,21 +54,52 @@ Error of the knn
 ks <- c(1,3,5,7,9,11,13,15,17,19,21,23,50,70, 90, 150, 200,250,300,350)
 # nearest neighbours to try
 nks <- length(ks)
-misclass.train <- numeric(length=nks)
-misclass.test <- numeric(length=nks)
+
+accuracy.train <- numeric(length=nks)
+accuracy.test <- numeric(length=nks)
+
+precision.train <- numeric(length=nks)
+precision.test <- numeric(length=nks)
+
+recall.train <- numeric(length=nks)
+recall.test <- numeric(length=nks)
+
+
 for (i in seq(along=ks)) {
 mod.train <- knn(trainDf,trainDf,k=ks[i],cl=train$diabetes)
+confussionMatrixTrain = table(mod.train, train$diabetes)
+accuracy.train[i] = sum(mod.train == train$diabetes)/length(train$diabetes)
+precision.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+recall.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+
 mod.test <- knn(trainDf, testDf[,-9],k= ks[i],cl= train$diabetes)
-misclass.train[i] <- 1 - sum(mod.train==train$diabetes)/nrow(trainDf)
-misclass.test[i] <- 1 - sum(mod.test==test$diabetes)/nrow(testDf)
+confussionMatrixTest = table(mod.test, test$diabetes)
+accuracy.test[i] = sum(mod.test == test$diabetes)/length(test$diabetes)
+precision.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
 }
 
-misclass.test
-# Figure 2.4
-plot(misclass.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 0.4))
+#Accuracy
+plot(accuracy.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 1),  main="Accuracy",)
 axis(1, 1:length(ks), as.character(ks))
-lines(misclass.test,type="b",col='blue',pch=20)
-lines(misclass.train,type="b",col='red',pch=20)
+lines(accuracy.train,type="b",col='red',pch=20)
+lines(accuracy.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+
+
+#Precision
+plot(precision.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 1),  main="Precision",)
+axis(1, 1:length(ks), as.character(ks))
+lines(precision.train,type="b",col='red',pch=20)
+lines(precision.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+
+
+#Recall
+plot(recall.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 1),  main="Recall",)
+axis(1, 1:length(ks), as.character(ks))
+lines(recall.train,type="b",col='red',pch=20)
+lines(recall.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 ```
 Logistic regression
