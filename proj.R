@@ -8,7 +8,9 @@ utils::data(PimaIndiansDiabetes2)
 Diab2<-PimaIndiansDiabetes2;
 
 
-# MICE ##################################################################
+###################################################################
+
+# MICE
 
 sapply(Diab2, function(x) sum(is.na(x))) #sapply returns a list of the same length as X, each element
                                         #of which is the result of applying FUN to the corresponding 
@@ -30,13 +32,16 @@ imputed = mice(Diab2, method=meth, predictorMatrix=predM, m=5)   # Q: is better 
 imput<-complete(imputed)
 
 
-############################################################
-
 # Split the dataset in train (80%) and test (20%)
 
 sample<-sample.split(imput,SplitRatio=0.8)
 train.set<-subset(imput, sample==TRUE)
 test.set <- subset(imput, sample==FALSE)
+
+
+#############################################################
+###################       KNN       #########################
+#############################################################
 
 train.x <- train.set[,1:8]
 test.x <- test.set[, 1:8]
@@ -46,9 +51,6 @@ test.y <- test.set[,9]
 classes <- factor(train.set$diabetes)
 
 predicted.classes <- knn(train.x, test.x, classes, k=3)
-
-
-#############################################################
 
 # Error
 
@@ -76,42 +78,65 @@ legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 title('Test performace vs Train performace')
 
 
-# ###########################################################
-# 
-# # Decision Boundaries
-# 
-# col1<-c('blue', 'magenta')
-# 
-# library(grid)  #ci serve per plottare una griglia
-# plot.knn <- function(kneighbours){
-#   grid=numeric(8)
-#   grid.x2 <- seq(min(imput[,2]), max(imput[,2]), 1)
-#   grid.x8 <- seq(min(imput[,8]), max(imput[,8]), 1)
-#   grid <- expand.grid(0, grid.x2,0,0,0,0,0,grid.x8)
-#   colnames(grid) <- colnames(train.x)
-#   predicted.classes <- knn(train.x, grid, classes, k=kneighbours)
-#   x11()
-#   plot(imput$glucose, imput$age, pch=20, col=col1[as.numeric(imput$diabetes)], xlab='glucose', ylab='age')
-#   points(grid$glucose, grid$age, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
-#   legend("topleft", legend=levels(imput$diabetes),fill =col1)
-#   title(c("Classification with k=", kneighbours))
-#   
-#   predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.x2), length(grid.x8))
-#   contour(grid.x2, grid.x8, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE) 
-#   }
-# 
-# plot.knn(1)
-# plot.knn(3)
-# plot.knn(5)
-# plot.knn(10)
-# 
+###########################################################
 
+# Decision Boundaries
+
+col1<-c('blue', 'magenta')
+
+library(grid)  #ci serve per plottare una griglia
+plot.knn <- function(kneighbours){
+  grid.x2 <- seq(min(imput[,2]), max(imput[,2]), 1)
+  grid.x8 <- seq(min(imput[,8]), max(imput[,8]), 1)
+  grid <- expand.grid(0, grid.x2,0,0,0,0,0,grid.x8)
+  colnames(grid) <- colnames(train.x)
+  predicted.classes <- knn(train.x, grid, classes, k=kneighbours)
+  x11()
+  plot(imput$glucose, imput$age, pch=20, col=col1[as.numeric(imput$diabetes)], xlab='glucose', ylab='age')
+  points(grid$glucose, grid$age, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(imput$diabetes),fill =col1)
+  title(c("Classification with k=", kneighbours))
+
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.x2), length(grid.x8))
+  contour(grid.x2, grid.x8, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  }
+
+plot.knn(1)
+plot.knn(3)
+plot.knn(5)
+plot.knn(10)
+
+####################################################
 # PCA
 
 #install.packages("ggfortify")
 library(ggfortify)
+library(devtools)
+install_github("vqv/ggbiplot")
+
+pca<- prcomp(imput[,-9], center = TRUE,scale. = TRUE)
+pca.values <- pca$x
+#pca <- princomp (train.x, cor = TRUE, scores = TRUE)
+str(pca)
 
 test.pred <- cbind(test.x, predicted.classes)
 
 autoplot(prcomp(test.x), data = test.pred, colour = 'predicted.classes')
 
+# Decision boudaries in PCA
+
+plot.knn <- function(kneighbours){
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 0.1)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 0.1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+  predicted.classes <- knn(train.x, grid, classes, k=kneighbours)
+  x11()
+  plot(imput$glucose, imput$age, pch=20, col=col1[as.numeric(imput$diabetes)], xlab='glucose', ylab='age')
+  points(grid$glucose, grid$age, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(imput$diabetes),fill =col1)
+  title(c("Classification with k=", kneighbours))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.x2), length(grid.x8))
+  contour(grid.x2, grid.x8, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
