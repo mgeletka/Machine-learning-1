@@ -71,6 +71,26 @@ lines(misclass.test,type="b",col='blue',pch=20)
 lines(misclass.train,type="b",col='red',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 ```
+
+Decision Bundaries
+```{r}
+col1 <- c('blue', 'magenta')
+library(grid)
+plot.knn <- function(kneighbours){
+  grid.gen.x1 <- seq(min(data[,:4]),max(data[,:8]),0.1)
+  grid.gen.x2 <- seq(min(data$triceps),max(data$age),0.1)
+  grid <- expand.grid(0, 0,0,grid.gen.x2,0,0,0,grid.gen.x1)
+
+  print(grid)
+  colnames<- colnames(trainDf)
+  plot(data$pregnant,data$glucose,pch = 20, col = col1[as.numeric(data$diabetes)],xlab = "pregnant",ylab = "glucose")
+  pred.classes <- knn(trainDf,grid,train$diabetes,k = kneighbours)
+  points(grid$age,age$triceps, pch = ".", col = col1[as.numeric(pred.classes)])
+  pred.matrix <- matrix(as.numeric(pred.classes),length(grid.gen.x1),length(grid.gen.x2))
+  contour(grid.gen.x1,grid.gen.x2,pred.matrix,levels=c(1.5),drawlabels = FALSE,add = TRUE)
+}
+plot.knn(5)
+```
 Logistic regression
 ```{r}
 glm <- glm(diabetes~.,family=binomial(logit),data=data)
