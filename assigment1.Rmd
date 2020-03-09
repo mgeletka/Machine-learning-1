@@ -10,6 +10,7 @@ library("mlbench")
 library("caTools")
 library("class")
 library(mice)
+library("rpart")
 
 utils::data("PimaIndiansDiabetes2")
 data <- PimaIndiansDiabetes2
@@ -74,22 +75,29 @@ legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 
 Decision Bundaries
 ```{r}
-col1 <- c('blue', 'magenta')
-library(grid)
-plot.knn <- function(kneighbours){
-  grid.gen.x1 <- seq(min(data[,:4]),max(data[,:8]),0.1)
-  grid.gen.x2 <- seq(min(data$triceps),max(data$age),0.1)
-  grid <- expand.grid(0, 0,0,grid.gen.x2,0,0,0,grid.gen.x1)
+col1<-c('blue', 'magenta')
 
-  print(grid)
-  colnames<- colnames(trainDf)
-  plot(data$pregnant,data$glucose,pch = 20, col = col1[as.numeric(data$diabetes)],xlab = "pregnant",ylab = "glucose")
-  pred.classes <- knn(trainDf,grid,train$diabetes,k = kneighbours)
-  points(grid$age,age$triceps, pch = ".", col = col1[as.numeric(pred.classes)])
-  pred.matrix <- matrix(as.numeric(pred.classes),length(grid.gen.x1),length(grid.gen.x2))
-  contour(grid.gen.x1,grid.gen.x2,pred.matrix,levels=c(1.5),drawlabels = FALSE,add = TRUE)
-}
+library(grid)  #ci serve per plottare una griglia
+plot.knn <- function(kneighbours){
+  grid.x2 <- seq(min(data[,2]), max(data[,2]), 1)
+  grid.x8 <- seq(min(data[,8]), max(data[,8]), 1)
+  grid <- expand.grid(0, grid.x2,0,0,0,0,0,grid.x8)
+  colnames(grid) <- colnames(trainDf)
+  predicted.classes <- knn(trainDf, grid, data$diabetes, k=kneighbours)
+  x11()
+  plot(data$glucose, data$age, pch=20, col=col1[as.numeric(data$diabetes)], xlab='glucose', ylab='age')
+  points(grid$glucose, grid$age, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with k=", kneighbours))
+
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.x2), length(grid.x8))
+  contour(grid.x2, grid.x8, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  }
+
+plot.knn(1)
+plot.knn(3)
 plot.knn(5)
+plot.knn(10)
 ```
 Logistic regression
 ```{r}
@@ -105,4 +113,30 @@ now the insulin is not significant
 ```{r}
 glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
 summary(glm3)
+```
+CART
+
+```{r}
+
+model1 <- rpart(diabetes ~., data = data, method = "class")
+# Plot the trees
+par(xpd = NA) # Avoid clipping the text in some device
+plot(model1)
+text(model1, digits = 3)
+
+mean(predicted.classes == data$diabetes)
+
+
+predicted.classes <- model1 %>% 
+  predict(testDf, type = "class")
+head(predicted.classes)
+```
+PCA
+```{r}
+
+pca <- princomp (trainDf, cor = TRUE, scores = TRUE)
+str(testDf)
+
+library(ggfortify)
+autoplot(prcomp(testDf[,-9]), data = testDf, colour = 'pred.classes')
 ```
