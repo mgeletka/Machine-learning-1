@@ -10,6 +10,8 @@ library("mlbench")
 library("caTools")
 library("class")
 library(mice)
+library(grid)
+
 
 utils::data("PimaIndiansDiabetes2")
 data <- PimaIndiansDiabetes2
@@ -37,22 +39,21 @@ testDf <- test[,-9]
 #trainDf <- replace(trainDf, TRUE, lapply(trainDf, NA2mean))
 #testDf <- replace(testDf, TRUE, lapply(testDf, NA2mean))
 
-pred.classes <- knn(trainDf, testDf, train$diabetes, k=3)
+pred.classes <- knn(trainDf, testDf, train$diabetes, k=5)
 testDf <- cbind(testDf,pred.classes)
 
 ```
 PCA and plot
 ```{r}
 pca <- princomp (trainDf, cor = TRUE, scores = TRUE)
-str(testDf)
+(pca)
 
 library(ggfortify)
 autoplot(prcomp(testDf[,-9]), data = testDf, colour = 'pred.classes')
 ```
 Error of the knn
 ```{r}
-ks <- c(1,3,5,7,9,11,13,15,17,19,21,23,50,70, 90, 150, 200,250,300,350)
-# nearest neighbours to try
+ks <- c(1,3,5,7,9,11,15,17,23,25,35,45,55,83,101,151 )# nearest neighbours to try
 nks <- length(ks)
 
 accuracy.train <- numeric(length=nks)
@@ -80,7 +81,7 @@ recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
 }
 
 #Accuracy
-plot(accuracy.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 1),  main="Accuracy",)
+plot(accuracy.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy",)
 axis(1, 1:length(ks), as.character(ks))
 lines(accuracy.train,type="b",col='red',pch=20)
 lines(accuracy.test,type="b",col='blue',pch=20)
@@ -88,7 +89,7 @@ legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 
 
 #Precision
-plot(precision.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 1),  main="Precision",)
+plot(precision.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision",)
 axis(1, 1:length(ks), as.character(ks))
 lines(precision.train,type="b",col='red',pch=20)
 lines(precision.test,type="b",col='blue',pch=20)
@@ -96,11 +97,38 @@ legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 
 
 #Recall
-plot(recall.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.0, 1),  main="Recall",)
+plot(recall.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall",)
 axis(1, 1:length(ks), as.character(ks))
 lines(recall.train,type="b",col='red',pch=20)
 lines(recall.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+Plotting the boundaries in different 
+```{r}
+col1<-c('blue', 'magenta')
+
+plot.knn <- function(k, indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  predicted.classes <- knn(trainDf[, c(indexA, indexB)], grid, train$diabetes, k=k)
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with k=", k))
+
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  print(predicted.classes)
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  }
+
+
+
+plot.knn(5, 2, 8)
+plot.knn(5, 3, 6)
+
+
 ```
 Logistic regression
 ```{r}
@@ -116,4 +144,7 @@ now the insulin is not significant
 ```{r}
 glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
 summary(glm3)
+```
+```{r}
+
 ```
