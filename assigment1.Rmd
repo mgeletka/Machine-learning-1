@@ -45,7 +45,7 @@ print(pred.classes)
 ```
 PCA and plot
 ```{r}
-pca <- princomp (trainDf, cor = TRUE, scores = TRUE)
+pca <- prcomp (trainDf[,unlist(lapply(trainDf, FUN=class))=="numeric"], cor = TRUE, scores = TRUE)
 str(testDf)
 library(ggfortify)
 autoplot(prcomp(testDf[,-9]), data = testDf, colour = 'pred.classes')
@@ -97,34 +97,23 @@ plot.knn(3,5,6)
 Decision Bundaries with PCA
 
 ```{r}
-
-col1<-c('blue', 'magenta')
-Size_of_grid <- 100
-plot.knn <- function(k,IndexA,IndexB) {
-  col1<-c('blue', 'magenta')
-
-  Size_of_grid <- 100
-  grid <- data.frame(matrix(nrow = Size_of_grid,ncol = 7))
-  for(i in seq(1,8)){
-    mi = min(data[,i])
-    ma = max(data[,i])
-    grid[,i] = sample(mi:ma,Size_of_grid, replace = TRUE)
-  }
-  grid[,IndexA] = seq(min(data[,IndexA]), max(data[,IndexA]), length.out = Size_of_grid)
-  grid[,IndexB] = seq(min(data[,IndexB]), max(data[,IndexB]), length.out = Size_of_grid)
-  colnames(grid) <- colnames(trainDf) 
-  predicted.classes <- knn(trainDf, grid, train$diabetes, k=k)
-  
-  plot(data[, IndexA], data[ ,IndexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[IndexA], ylab=colnames(data)[IndexB]) 
-  points(grid[, IndexA], grid[,IndexB], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+Boundaris <- function(kn){
+  PCA1 <- pca$x[,1]
+  PCA2 <- pca$x[,2]
+  grid.A <- seq(min(PCA1), max(PCA1), (max(PCA1) - min(PCA1)) / 100)
+  grid.B <- seq(min(PCA2), max(PCA2), (max(PCA2) - min(PCA2)) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(c("PCA1","PCA2"))
+  predicted.classes <- knn(pca$x[, c(1, 2)], grid, train$diabetes, k=kn)
+  plot(PCA1, PCA2, pch=20, col=col1[as.numeric(data$diabetes)], xlab="PCA2",    ylab="PCA2")
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(data$diabetes),fill =col1)
-  title(c("Classification with k=", k))
+  title(c("Classification with k=", kn))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  }
   
-  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid[,IndexA]), length(grid[,IndexB]))
-  print(predicted.classes)
-  contour(grid[,IndexA], grid[,IndexB], predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
-}
-plot.knn(3,2,6)
+Boundaris(1)
 ```
 
 
