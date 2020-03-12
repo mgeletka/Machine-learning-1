@@ -41,12 +41,12 @@ testDf <- test[,-9]
 pred.classes <- knn(trainDf, testDf, train$diabetes, k=3)
 testDf <- cbind(testDf,pred.classes)
 
+print(pred.classes)
 ```
 PCA and plot
 ```{r}
 pca <- princomp (trainDf, cor = TRUE, scores = TRUE)
 str(testDf)
-
 library(ggfortify)
 autoplot(prcomp(testDf[,-9]), data = testDf, colour = 'pred.classes')
 ```
@@ -58,10 +58,10 @@ nks <- length(ks)
 misclass.train <- numeric(length=nks)
 misclass.test <- numeric(length=nks)
 for (i in seq(along=ks)) {
-mod.train <- knn(trainDf,trainDf,k=ks[i],cl=train$diabetes)
-mod.test <- knn(trainDf, testDf[,-9],k= ks[i],cl= train$diabetes)
-misclass.train[i] <- 1 - sum(mod.train==train$diabetes)/nrow(trainDf)
-misclass.test[i] <- 1 - sum(mod.test==test$diabetes)/nrow(testDf)
+  mod.train <- knn(trainDf,trainDf,k=ks[i],cl=train$diabetes)
+  mod.test <- knn(trainDf, testDf[,-9],k= ks[i],cl= train$diabetes)
+  misclass.train[i] <- 1 - sum(mod.train==train$diabetes)/nrow(trainDf)
+  misclass.test[i] <- 1 - sum(mod.test==test$diabetes)/nrow(testDf)
 }
 
 misclass.test
@@ -76,29 +76,60 @@ legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 Decision Bundaries
 ```{r}
 col1<-c('blue', 'magenta')
-
-library(grid)  #ci serve per plottare una griglia
-plot.knn <- function(kneighbours){
-  grid.x2 <- seq(min(data[,2]), max(data[,2]), 1)
-  grid.x8 <- seq(min(data[,8]), max(data[,8]), 1)
-  grid <- expand.grid(0, grid.x2,0,0,0,0,0,grid.x8)
-  colnames(grid) <- colnames(trainDf)
-  predicted.classes <- knn(trainDf, grid, data$diabetes, k=kneighbours)
-  x11()
-  plot(data$glucose, data$age, pch=20, col=col1[as.numeric(data$diabetes)], xlab='glucose', ylab='age')
-  points(grid$glucose, grid$age, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+plot.knn <- function(k, indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  predicted.classes <- knn(trainDf[, c(indexA, indexB)], grid, train$diabetes, k=k)
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA],     ylab=colnames(data)[indexB])
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(data$diabetes),fill =col1)
-  title(c("Classification with k=", kneighbours))
-
-  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.x2), length(grid.x8))
-  contour(grid.x2, grid.x8, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  title(c("Classification with k=", k))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  print(predicted.classes)
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
   }
 
-plot.knn(1)
-plot.knn(3)
-plot.knn(5)
-plot.knn(10)
+plot.knn(1,2,8)
+plot.knn(3,5,6)
 ```
+Decision Bundaries with PCA
+
+```{r}
+
+col1<-c('blue', 'magenta')
+Size_of_grid <- 100
+plot.knn <- function(k,IndexA,IndexB) {
+  col1<-c('blue', 'magenta')
+
+  Size_of_grid <- 100
+  grid <- data.frame(matrix(nrow = Size_of_grid,ncol = 7))
+  for(i in seq(1,8)){
+    mi = min(data[,i])
+    ma = max(data[,i])
+    grid[,i] = sample(mi:ma,Size_of_grid, replace = TRUE)
+  }
+  grid[,IndexA] = seq(min(data[,IndexA]), max(data[,IndexA]), length.out = Size_of_grid)
+  grid[,IndexB] = seq(min(data[,IndexB]), max(data[,IndexB]), length.out = Size_of_grid)
+  colnames(grid) <- colnames(trainDf) 
+  predicted.classes <- knn(trainDf, grid, train$diabetes, k=k)
+  
+  plot(data[, IndexA], data[ ,IndexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[IndexA], ylab=colnames(data)[IndexB]) 
+  points(grid[, IndexA], grid[,IndexB], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with k=", k))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid[,IndexA]), length(grid[,IndexB]))
+  print(predicted.classes)
+  contour(grid[,IndexA], grid[,IndexB], predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+plot.knn(3,2,6)
+```
+
+
+
+
 Logistic regression
 ```{r}
 glm <- glm(diabetes~.,family=binomial(logit),data=data)
@@ -118,19 +149,48 @@ CART
 
 ```{r}
 
-model1 <- rpart(diabetes ~., data = data, method = "class")
+model1 <- rpart(diabetes ~pregnant + glucose + mass + pedigree, data = data, method = "class")
 # Plot the trees
-par(xpd = NA) # Avoid clipping the text in some device
-plot(model1)
-text(model1, digits = 3)
 
-mean(predicted.classes == data$diabetes)
+printcp(model1) # display the results
+plotcp(model1) # visualize cross-validation results
+summary(model1) # detailed summary of splits
+
+# plot tree
+plot(model1, uniform=TRUE,
+   main="Classification Tree for Pina")
+text(model1, use.n=TRUE, all=TRUE, cex=.8)
+
+bestcp <- model1$cptable[which.min(model1$cptable[,"xerror"]),"CP"]
+
+model1.pruned <- prune(model1, cp = bestcp)
 
 
-predicted.classes <- model1 %>% 
-  predict(testDf, type = "class")
-head(predicted.classes)
+conf.matrix <- table(data$diabetes, predict(model1.pruned,type="class"))
+rownames(conf.matrix) <- paste("Actual", rownames(conf.matrix), sep = ":")
+colnames(conf.matrix) <- paste("Pred", colnames(conf.matrix), sep = ":")
+print(conf.matrix)
+
+
 ```
+Second One
+
+```{r}
+model1 <- rpart(diabetes ~., data = data, control = rpart.control(maxdepth = 4),method = "class")
+# Plot the trees
+
+printcp(model1) # display the results
+plotcp(model1) # visualize cross-validation results
+summary(model1) # detailed summary of splits
+
+# plot tree
+plot(model1, uniform=TRUE,
+   main="Classification Tree for Pina")
+text(model1, use.n=TRUE, all=TRUE, cex=.8)
+
+
+```
+
 PCA
 ```{r}
 
