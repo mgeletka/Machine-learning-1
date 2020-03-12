@@ -166,10 +166,8 @@ library(ggfortify)
 library(devtools)
 install_github("vqv/ggbiplot")
 
-pca<- prcomp(imput[,-9], center = TRUE,scale. = TRUE)
+pca<- prcomp(train.x)
 pca.values <- pca$x
-pca <- princomp (train.x, cor = TRUE, scores = TRUE)
-str(pca)
 
 test.pred <- cbind(test.x, predicted.classes)
 
@@ -178,22 +176,21 @@ autoplot(prcomp(test.x), data = test.pred, colour = 'predicted.classes')
 # Decision boudaries in PCA
 
 plot.knn <- function(kneighbours){
-  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 0.1)
-  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 0.1)
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
   grid <- expand.grid(grid.PC1,grid.PC2)
   colnames(grid) <- c('PC1','PC2')
-  predicted.classes <- knn(train.x, grid, classes, k=kneighbours)
-  x11()
-  plot(imput$glucose, imput$age, pch=20, col=col1[as.numeric(imput$diabetes)], xlab='glucose', ylab='age')
-  points(grid$glucose, grid$age, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  predicted.classes <- knn(pca.values[,c(1,2)], grid, classes, k=kneighbours)
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train.set$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(imput$diabetes),fill =col1)
-  title(c("Classification with k=", kneighbours))
+  title(c("PCA Classification with k=", kneighbours))
   
-  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.x2), length(grid.x8))
-  contour(grid.x2, grid.x8, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
 }
 
-
+plot.knn(1)
 
 ###########
 
