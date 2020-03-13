@@ -262,5 +262,31 @@ plot.treeBoundaries.pca <- function(mb) {
 }
 
 
-plot.treeBoundaries.pca(8)
+plot.treeBoundaries.pca(1)
+plot.treeBoundaries.pca(20)
+plot.treeBoundaries.pca(100)
+
+```
+```{r}
+plot.treeBoundaries <- function(mb, indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  cart_model <- rpart(diabetes ~ . , data = train[, c(indexA, indexB, 9)], method = "class",control = rpart.control(minbucket = mb))
+  predicted.classes <- predict(cart_model, grid, type = "class")
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with minibucket size=", mb))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+
+plot.treeBoundaries(5, 2, 8)
+plot.treeBoundaries(5, 3, 6)
 ```
