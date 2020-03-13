@@ -166,18 +166,8 @@ glm <- glm(diabetes~.,family=binomial(logit),data=data)
 
 
 
-we see thath Significant are only pregnant, glucoe, intercept, mass and pedigree
-```{r}
-glm2 <- glm(diabetes~pregnant + glucose + insulin + mass + pedigree,family=binomial(logit),data=data)
 
 
-
-```
-now the insulin is not significant
-```{r}
-glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
-summary(glm3)
-```
 CART
 ```{r}
 model1 <- rpart(diabetes ~., data = data, method = "class")
@@ -258,6 +248,8 @@ plot.treeBoundaries.pca <- function(mb) {
     
   cart_model <- rpart(diabetes ~., data = pca.df, method = "class",control = rpart.control(minbucket = mb))
   predicted.classes <- predict(cart_model, grid, type = "class")
+  
+  
   plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
   points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(data$diabetes),fill =col1)
@@ -301,3 +293,119 @@ plot.cart <- function(indexA, indexB) {
 
 plot.cart(2,8)
 ```
+
+##########################################################################################
+                                  Linear regression
+##########################################################################################
+```{r}
+  data.x<-data[,-9]
+  
+  ml<-lm(as.numeric(data$diabetes)~pregnant+glucose+pressure+triceps+insulin+mass+pedigree+age, data=data[,-9])
+  summary(ml)
+  ml<-lm(as.numeric(data$diabetes)~pregnant+glucose+ pressure+  insulin+mass+pedigree+age, data=data[,-9])
+  summary(ml)
+  ml<-lm(as.numeric(data$diabetes)~pregnant+glucose+ pressure+ mass+pedigree+age, data=data[,-9])
+  summary(ml)
+  ml<-lm(as.numeric(data$diabetes)~pregnant+glucose+ mass+pedigree+age, data=data[,-9])
+  summary(ml)
+  ml<-lm(as.numeric(data$diabetes)~pregnant+glucose+ mass+pedigree, data=data[,-9])
+  summary(ml)
+```
+# classifier
+```{r}
+  f_col <- function(x){ if (x<1.5) 'blue' else 'magenta'}
+  
+  lsm <- function(regmod, data){
+    val <- round(predict(regmod, data))
+    pr.cl<-sapply(val,f_col)
+  }
+```
+# Boundaries
+```{r}
+
+plot.lr <- function(indexA,indexB){
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), 1)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), 1)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(train[c(indexA,indexB)])
+  
+  ml<-lm(as.numeric(data$diabetes)~., data = data[,c(indexA,indexB)])
+
+  predicted.classes <- lsm(ml,grid)
+  pr.cl.val <- as.numeric(data.frame(predicted.classes)$predicted.classes)
+
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA],     ylab=colnames(data)[indexB])
+  points(grid[,1], grid[,2], pch='.', col=predicted.classes)  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with linear regression"))
+  
+  predicted.matrix <- matrix(pr.cl.val, length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE) # but it would be more reasonable draw a linear function
+}
+
+plot.lr(3,6)
+```
+
+PCA linear 
+
+```{r}
+plot.linear.pca <- function() {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  ml<-lm(as.numeric(train$diabetes)~., data = pca.df)
+
+  predicted.classes <- lsm(ml,grid)
+
+  pr.cl.val <- as.numeric(data.frame(predicted.classes)$predicted.classes)
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification with mini bucket size ="))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+plot.linear.pca()
+```
+```{r}
+plot.linRegression.pca <- function() {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  glm3 <- lm(diabetes~.,data=pca.df)
+  predicted.classes <- predict(glm3, grid, type = "response")
+  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
+  
+  
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification of logistic regression"))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+plot.linRegression.pca()
+```
+
+
+
+
+
+
+
