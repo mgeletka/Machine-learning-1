@@ -163,6 +163,64 @@ now the insulin is not significant
 glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
 summary(glm3)
 ```
+```{r}
+glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
+summary(glm3)
+```
+
+Bundaries of logistic regression
+```{r}
+plot.logRegression.pca <- function() {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  glm3 <- glm(diabetes~.,family=binomial(logit),data=pca.df)
+  predicted.classes <- predict(glm3, grid, type = "response")
+  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
+
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification of loggistic regression"))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+
+plot.logRegression.pca()
+```
+```{r}
+plot.logRegression.boundaries <- function(indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  glm3 <- glm(diabetes~.,family=binomial(logit),data = train[, c(indexA, indexB, 9)])
+  predicted.classes <- predict(glm3, grid, type = "response")
+  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with logistic regression"))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+
+plot.logRegression.boundaries(2, 8)
+plot.logRegression.boundaries(3, 6)
+```
+
 CART
 ```{r}
 model1 <- rpart(diabetes ~., data = data, method = "class")
