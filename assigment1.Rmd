@@ -104,7 +104,10 @@ lines(recall.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 ```
 Plotting the boundaries in different 
+
 ```{r}
+col1<-c('blue', 'magenta')
+
 plot.knn <- function(k, indexA, indexB) {
   grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
   grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
@@ -235,4 +238,29 @@ lines(recall.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 
 ```
+```{r}
+plot.treeBoundaries.pca <- function(mb) {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  cart_model <- rpart(diabetes ~., data = pca.df, method = "class",control = rpart.control(minbucket = mb))
+  predicted.classes <- predict(cart_model, grid, type = "class")
 
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification with mini bucket size =", mb))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+
+plot.treeBoundaries.pca(8)
+```
