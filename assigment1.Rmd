@@ -179,43 +179,103 @@ glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit)
 summary(glm3)
 ```
 CART
-
-
-
 ```{r}
-  model1 <- rpart(diabetes ~., data = data, method = "class")
-  str(model1)
-  # Plot the trees
-  printcp(model1) # display the results
-  plotcp(model1) # visualize cross-validation results
-  summary(model1) # detailed summary of splits
-  predicted.classes <- predict(model1, testDf, type = "class")
-  print(1 - mean(predicted.classes == test$diabetes))
-  # plot tree
-  plot(model1, uniform=TRUE,
-     main="Classification Tree for Diabetess")
-  text(model1, use.n=TRUE, all=TRUE, cex=.8)
-  bestcp <- model1$cptable[which.min(model1$cptable[,"xerror"]),"CP"]
-  model1.pruned <- prune(model1, cp = bestcp)
-  conf.matrix <- table(data$diabetes, predict(model1.pruned,type="class"))
-  rownames(conf.matrix) <- paste("Actual", rownames(conf.matrix), sep = ":")
-  colnames(conf.matrix) <- paste("Pred", colnames(conf.matrix), sep = ":")
-  print(conf.matrix)
+model1 <- rpart(diabetes ~., data = data, method = "class")
+str(model1)
+# Plot the trees
+printcp(model1) # display the results
+plotcp(model1) # visualize cross-validation results
+summary(model1) # detailed summary of splits
+predicted.classes <- predict(model1, testDf, type = "class")
+print(1 - mean(predicted.classes == test$diabetes))
+# plot tree
+plot(model1, uniform=TRUE,
+   main="Classification Tree for Diabetess")
+text(model1, use.n=TRUE, all=TRUE, cex=.8)
+bestcp <- model1$cptable[which.min(model1$cptable[,"xerror"]),"CP"]
+model1.pruned <- prune(model1, cp = bestcp)
+conf.matrix <- table(data$diabetes, predict(model1.pruned,type="class"))
+rownames(conf.matrix) <- paste("Actual", rownames(conf.matrix), sep = ":")
+colnames(conf.matrix) <- paste("Pred", colnames(conf.matrix), sep = ":")
+print(conf.matrix)
 ```
 
+
 ```{r}
-for(i in seq(1, 300, 5) ){
-  c <- rpart.control(minbucket = i)
-  cart_model <- rpart(diabetes ~., data = train, method = "class", control = c)
-  cart_model <- rpart(dia)
-  
+possible_bucket_sizes <- seq(1, 300, 10)
+nks <- length(possible_bucket_sizes)
+accuracy.train <- numeric(length=nks)
+accuracy.test <- numeric(length=nks)
+precision.train <- numeric(length=nks)
+precision.test <- numeric(length=nks)
+recall.train <- numeric(length=nks)
+recall.test <- numeric(length=nks)
+for(i in seq(1:length(possible_bucket_sizes))){
+  cart_model <- rpart(diabetes ~., data = train, method = "class",control = rpart.control(minbucket = possible_bucket_sizes[i]))
+  predicted.classes.test <- predict(cart_model, testDf, type = "class")
+  predicted.classes.train <- predict(cart_model, trainDf, type = "class")
+    confussionMatrixTrain = table(predicted.classes.train, train$diabetes)
+    accuracy.train[i] <- mean(predicted.classes.train == train$diabetes)
+    precision.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+    recall.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+    confussionMatrixTest = table(predicted.classes.test, test$diabetes)
+    accuracy.test[i] <- mean(predicted.classes.test == test$diabetes)
+    precision.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+    recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
 }
+
+#Accuracy
+plot(accuracy.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy",)
+axis(1, 1:length(ks), as.character(ks))
+lines(accuracy.train,type="b",col='red',pch=20)
+lines(accuracy.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+#Precision
+plot(precision.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision",)
+axis(1, 1:length(ks), as.character(ks))
+lines(precision.train,type="b",col='red',pch=20)
+lines(precision.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+#Recall
+plot(recall.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall",)
+axis(1, 1:length(ks), as.character(ks))
+lines(recall.train,type="b",col='red',pch=20)
+lines(recall.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 ```
+
+
+```{r}
+plot.treeBoundaries.pca <- function(mb) {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  cart_model <- rpart(diabetes ~., data = pca.df, method = "class",control = rpart.control(minbucket = mb))
+  predicted.classes <- predict(cart_model, grid, type = "class")
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification with mini bucket size =", mb))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+plot.treeBoundaries.pca(100)
+
+```
+
+
 
 ```{r}
 
 col1<-c('blue', 'magenta')
-plot.cart <- function(k, indexA, indexB) {
+plot.cart <- function(indexA, indexB) {
   
   grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
   grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
@@ -223,7 +283,9 @@ plot.cart <- function(k, indexA, indexB) {
   
   colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
   
-  model1 <- rpart(diabetes ~., data = data, method = "class", control = rpart.control(minbucket = 100))
+  model1 <- rpart(diabetes ~., data = data[,c(indexA,indexB,9)], method = "class")
+
+  
 
   predicted.classes <- predict(model1, grid, type = "class")
   
@@ -231,44 +293,11 @@ plot.cart <- function(k, indexA, indexB) {
   plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA],     ylab=colnames(data)[indexB])
   points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(data$diabetes),fill =col1)
-  title(c("Classification with k=", k))
+  title("Decision Bounderies")
   predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
   print(predicted.classes)
-  contour(grid.A, grid.B, predicted.classes, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
   }
 
-plot.cart(1,2,8)
-plot.cart(3,5,6)
-
-```
-
-
-
-
-Second One
-
-```{r}
-model1 <- rpart(diabetes ~., data = data, control = rpart.control(maxdepth = 4),method = "class")
-# Plot the trees
-
-printcp(model1) # display the results
-plotcp(model1) # visualize cross-validation results
-summary(model1) # detailed summary of splits
-
-# plot tree
-plot(model1, uniform=TRUE,
-   main="Classification Tree for Pina")
-text(model1, use.n=TRUE, all=TRUE, cex=.8)
-
-
-```
-
-PCA
-```{r}
-
-pca <- princomp (trainDf, cor = TRUE, scores = TRUE)
-str(testDf)
-
-library(ggfortify)
-autoplot(prcomp(testDf[,-9]), data = testDf, colour = 'pred.classes')
+plot.cart(2,8)
 ```
