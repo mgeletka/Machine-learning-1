@@ -2,9 +2,23 @@
 title: "Machine learning 1 assigment"
 output: html_notebook
 ---
+##Introduction
 
-Loading and diving the data
+The purpose of this assignment is to compare and study different methods and approaches in the classification of data.  We want to focus on how different methods and their tuning parameters affect the expressiveness of the final model.
 
+We chose four different methods:
+
+* the knn,
+* the linear regression,
+* decision trees
+* logistic regression.
+
+For each method, we plot the error on the test and train dataset and evaluate the expressiveness of the models with different tuning parameters. For the evaluation of the methods, we used the Pima Indians Diabetes available in the R data utils.
+
+</br>
+</br>
+
+####Importing libraries and loading the data
 ```{r}
 library("mlbench")
 library("caTools")
@@ -12,48 +26,62 @@ library("class")
 library(mice)
 library(grid)
 library("rpart")
-
+library(GGally)
 
 
 utils::data("PimaIndiansDiabetes2")
 data <- PimaIndiansDiabetes2
 
+```
+</br>
+
+####Replacing NA values
+After loading the data, we found out that some columns contain the NA values. Firstly we deleted all rows with this value, but these rows were too high. So secondly, we tried to replace the missing values with their averages, but this introduces much noise to the data. So finally, we used the mice library and its imputations methods for dealing with NA values.
+
+```{r}
+
 set.seed(101) 
-
 init = mice(data, maxit=0) 
-meth = init$method
-predM = init$predictorMatrix
-imputed = mice(data, method=meth, predictorMatrix=predM, m=5)
-data <- complete(imputed)
+data <- complete(mice(data, method=init$method, predictorMatrix=init$predictorMatrix, m=5))
+```
+</br>
 
+#### Summary of data
+```{r}
+p <- ggpairs(data[sample(1:nrow(data),100),], columns = 1:8, ggplot2::aes(colour=diabetes), lower = list(continuous=wrap("points")), progress=FALSE,legend=1)
+p
+```
+</br>
+
+####Dividing the data into train and test dataset
+
+```{r}
 
 sample <- sample.split(data, SplitRatio = 0.8)
 train <- subset(data, sample == TRUE)
 test  <- subset(data, sample == FALSE)
-
-```
-KNN
-```{r}
 trainDf <- train[, -9]
 testDf <- test[,-9]
+```
+
+```{r}
+
 
 #NA2mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
 #trainDf <- replace(trainDf, TRUE, lapply(trainDf, NA2mean))
 #testDf <- replace(testDf, TRUE, lapply(testDf, NA2mean))
 
-pred.classes <- knn(trainDf, testDf, train$diabetes, k=5)
-testDf <- cbind(testDf,pred.classes)
+#pred.classes <- knn(trainDf, testDf, train$diabetes, k=5)
+#testDf <- cbind(testDf,pred.classes)
 
 ```
-PCA and plot
-```{r}
 
-library(ggfortify)
-autoplot(prcomp(testDf[,-9]), data = testDf, colour = 'pred.classes')
-```
-Error of the knn
+</br>
+
+## KNN evaluation
+We start with the knn method, whose parameter k represents the number of the neighbors. We plotted different evaluation metrics (accuracy, precision, and recall) for the test and train data for different values of the parameter k.
 ```{r}
-ks <- c(1,3,5,7,9,11,15,17,23,25,35,45,55,83,101,151 )# nearest neighbours to try
+ks <- c(1,3,5,7,9,11,15,17,23,25,35,45,55)# nearest neighbours to try
 nks <- length(ks)
 
 accuracy.train <- numeric(length=nks)
@@ -64,8 +92,9 @@ precision.test <- numeric(length=nks)
 
 recall.train <- numeric(length=nks)
 recall.test <- numeric(length=nks)
+```
 
-
+```{r}
 for (i in seq(along=ks)) {
 mod.train <- knn(trainDf,trainDf,k=ks[i],cl=train$diabetes)
 confussionMatrixTrain = table(mod.train, train$diabetes)
@@ -79,31 +108,48 @@ accuracy.test[i] = sum(mod.test == test$diabetes)/length(test$diabetes)
 precision.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
 recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
 }
+```
+### {.tabset .tabset-fade .tabset-pills}
+When we compare the train and the test line in the plot, we see that all evaluation metrics are in the train line at the maxim with k equals 1, because we return the real value.
 
-#Accuracy
-plot(accuracy.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy",)
+#### Accuracy {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The accuracy achieves its maximum on the test dataset with k equals 15.
+```{r}
+plot(accuracy.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy")
 axis(1, 1:length(ks), as.character(ks))
 lines(accuracy.train,type="b",col='red',pch=20)
 lines(accuracy.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
 
+#### Precision {.tabset .tabset-fade .tabset-pills}
+</br>
 
-#Precision
-plot(precision.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision",)
+The precision achieves its maximum on the test dataset with k equals 23.
+```{r}
+plot(precision.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision")
 axis(1, 1:length(ks), as.character(ks))
 lines(precision.train,type="b",col='red',pch=20)
 lines(precision.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
 
+#### Recall {.tabset .tabset-fade .tabset-pills}
+</br>
+The recall achieves its maximum on the test dataset with k equals 15. 
 
-#Recall
-plot(recall.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall",)
+```{r}
+plot(recall.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall")
 axis(1, 1:length(ks), as.character(ks))
 lines(recall.train,type="b",col='red',pch=20)
 lines(recall.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
 ```
-Plotting the boundaries in different 
+
+###Plotting the boundaries in different dimensions
+We implemented the function plot.knn to visualize the boundaries in the given columns of indexA and indexB, and then show these two dimensions.
 
 ```{r}
 col1<-c('blue', 'magenta')
@@ -122,11 +168,35 @@ plot.knn <- function(k, indexA, indexB) {
   contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
 }
 
+```
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plotting of the boundaries between columns glucose and age
 
-plot.knn(5, 2, 8)
-plot.knn(5, 3, 6)
+```{r}
+plot.knn(15, 2, 8)
+```
+#### Pressure and mass
+Plotting of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.knn(23, 3, 6)
 
 ```
+#### Triceps and insulin
+Plotting of the boundaries between columns triceps and insulin
+
+```{r}
+plot.knn(23, 4, 5)
+```
+#### Age and pedigree
+Plotting of the boundaries between columns age and pedigree
+
+```{r}
+plot.knn(15, 8, 7)
+```
+###Plotting the boundaties in the first two PCA components
 ```{r}
 res.pca <- prcomp(data[,1:8], scale = TRUE)
 
@@ -145,52 +215,43 @@ plot.knn.pca <- function(k) {
   predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
   contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
 }
+```
 
 
-plot.knn.pca(100)
+### {.tabset .tabset-fade .tabset-pills}
+We tried plotting the first two principal components with a different value of the k, and we can see that this parameter affects the smoothness of the boundaries contour.  With the higher value of k, the contour is smoother, and the boundaries are less specific.  For example, we see that the model with k equals one is obviously overfitting the train data.
+
+#### k = 1 {.tabset .tabset-fade .tabset-pills}
+```{r}
 plot.knn.pca(1)
 ```
 
+#### k = 7 {.tabset .tabset-fade .tabset-pills}
 ```{r}
-plot.knn.pca2 <- function(k) {
-  grid.size <- 3
-  grid.values <- matrix(nrow=grid.size, ncol = 8)
-  for(i in seq(1:8)){
-    grid.values[,i] <- seq(min(data[,i]), max(data[, i]), length.out = grid.size)
-  }
-  grid <- expand.grid(grid.values[,1],grid.values[,2], grid.values[,3], grid.values[,4], grid.values[,5], grid.values[,6], grid.values[,7], grid.values[,8])
-  colnames(grid) <- colnames(trainDf)
-
-  print(grid)
-  predicted.classes <- knn(trainDf, grid, train$diabetes, k=k)
-
-  
-  rm<-res.pca$rotation
-  ct<-res.pca$center
-  sc<-res.pca$scale
-  
-  grid.comp1<-apply(grid,1,function(gridrow) ((gridrow-ct)/sc)%*%rm[,"PC1"])
-  grid.comp2<-apply(grid,1,function(gridrow) ((gridrow-ct)/sc)%*%rm[,"PC2"])
-  data.pca.comp1<-apply(data[,-9],1,function(mddrow) ((mddrow-ct)/sc)%*%rm[,"PC1"])
-  data.pca.comp2<-apply(data[,-9],1,function(mddrow) ((mddrow-ct)/sc)%*%rm[,"PC2"])
-  
-  
-  plot(data.pca.comp1, data.pca.comp2, pch=20, col=col1[as.numeric(data$diabetes)], xlab='PC1', ylab='PC2')
-  points(grid.comp1,grid.comp2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
-  legend("topleft", legend=levels(data$diabetes),fill =col1)
-  title(c("PCA Classification with k=", k))
-  
-  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.comp1), length(grid.comp2))
-  z <- outer(grid.comp1, grid.comp1)
-
-  contour(grid.comp1, grid.comp2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
-}
-
-plot.knn.pca2(1)
+plot.knn.pca(7)
 ```
 
+#### k = 15 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(15)
+```
 
-Logistic regression
+#### k = 23 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(23)
+```
+
+#### k = 50 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(50)
+```
+
+#### k = 100 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(100)
+```
+
+##Logistic regression
 ```{r}
 glm <- glm(diabetes~.,family=binomial(logit),data=data)
 summary(glm)
