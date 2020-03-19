@@ -128,6 +128,8 @@ plot.knn(5, 3, 6)
 
 ```
 ```{r}
+res.pca <- prcomp(data[,1:8], scale = TRUE)
+
 plot.knn.pca <- function(k) {
   pca.values <- prcomp(trainDf)$x
   grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
@@ -148,6 +150,46 @@ plot.knn.pca <- function(k) {
 plot.knn.pca(100)
 plot.knn.pca(1)
 ```
+
+```{r}
+plot.knn.pca2 <- function(k) {
+  grid.size <- 3
+  grid.values <- matrix(nrow=grid.size, ncol = 8)
+  for(i in seq(1:8)){
+    grid.values[,i] <- seq(min(data[,i]), max(data[, i]), length.out = grid.size)
+  }
+  grid <- expand.grid(grid.values[,1],grid.values[,2], grid.values[,3], grid.values[,4], grid.values[,5], grid.values[,6], grid.values[,7], grid.values[,8])
+  colnames(grid) <- colnames(trainDf)
+
+  print(grid)
+  predicted.classes <- knn(trainDf, grid, train$diabetes, k=k)
+
+  
+  rm<-res.pca$rotation
+  ct<-res.pca$center
+  sc<-res.pca$scale
+  
+  grid.comp1<-apply(grid,1,function(gridrow) ((gridrow-ct)/sc)%*%rm[,"PC1"])
+  grid.comp2<-apply(grid,1,function(gridrow) ((gridrow-ct)/sc)%*%rm[,"PC2"])
+  data.pca.comp1<-apply(data[,-9],1,function(mddrow) ((mddrow-ct)/sc)%*%rm[,"PC1"])
+  data.pca.comp2<-apply(data[,-9],1,function(mddrow) ((mddrow-ct)/sc)%*%rm[,"PC2"])
+  
+  
+  plot(data.pca.comp1, data.pca.comp2, pch=20, col=col1[as.numeric(data$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid.comp1,grid.comp2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification with k=", k))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.comp1), length(grid.comp2))
+  z <- outer(grid.comp1, grid.comp1)
+
+  contour(grid.comp1, grid.comp2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+plot.knn.pca2(1)
+```
+
+
 Logistic regression
 ```{r}
 glm <- glm(diabetes~.,family=binomial(logit),data=data)
@@ -167,6 +209,7 @@ summary(glm3)
 glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
 summary(glm3)
 ```
+
 
 Bundaries of logistic regression
 ```{r}
