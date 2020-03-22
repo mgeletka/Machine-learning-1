@@ -1,0 +1,695 @@
+---
+title: "Machine learning 1 assigment"
+output: html_notebook
+---
+##Introduction
+
+The purpose of this assignment is to compare and study different methods and approaches in the classification of data.  We want to focus on how different methods and their tuning parameters affect the expressiveness of the final model.
+
+We chose four different methods:
+
+* the knn,
+* the linear regression,
+* decision trees
+* logistic regression.
+
+For each method, we plot the error on the test and train dataset and evaluate the expressiveness of the models with different tuning parameters. For the evaluation of the methods, we used the Pima Indians Diabetes available in the R data utils.
+
+
+</br>
+
+####Importing libraries and loading the data
+```{r}
+library("mlbench")
+library("caTools")
+library("class")
+library(mice)
+library(grid)
+library("rpart")
+library(GGally)
+
+
+utils::data("PimaIndiansDiabetes2")
+data <- PimaIndiansDiabetes2
+
+```
+</br>
+
+####Replacing NA values
+After loading the data, we found out that some columns contain NA values. Firstly we deleted all rows with this value, but these rows were too numerous. So, secondly, we tried to replace the missing values with their averages, but this introduces much noise to the data. So finally, we used the mice library and its imputations methods for dealing with NA values.
+
+```{r}
+
+set.seed(101) 
+init = mice(data, maxit=0) 
+data <- complete(mice(data, method=init$method, predictorMatrix=init$predictorMatrix, m=5))
+```
+</br>
+
+#### Summary of data
+```{r}
+p <- ggpairs(data[sample(1:nrow(data),100),], columns = 1:8, ggplot2::aes(colour=diabetes), lower = list(continuous=wrap("points")), progress=FALSE,legend=1)
+p
+```
+</br>
+
+####Dividing the data into train and test dataset
+
+```{r}
+
+sample <- sample.split(data, SplitRatio = 0.8)
+train <- subset(data, sample == TRUE)
+test  <- subset(data, sample == FALSE)
+trainDf <- train[, -9]
+testDf <- test[,-9]
+```
+
+```{r}
+
+
+#NA2mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
+#trainDf <- replace(trainDf, TRUE, lapply(trainDf, NA2mean))
+#testDf <- replace(testDf, TRUE, lapply(testDf, NA2mean))
+
+#pred.classes <- knn(trainDf, testDf, train$diabetes, k=5)
+#testDf <- cbind(testDf,pred.classes)
+
+```
+
+</br>
+
+## KNN evaluation
+We start with the knn method, whose parameter k represents the number of the neighbors. We plotted different evaluation metrics (accuracy, precision, and recall) for the test and train data for different values of the parameter k.
+```{r}
+ks <- c(1,3,5,7,9,11,15,17,23,25,35,45,55)# nearest neighbours to try
+nks <- length(ks)
+
+accuracy.train <- numeric(length=nks)
+accuracy.test <- numeric(length=nks)
+
+precision.train <- numeric(length=nks)
+precision.test <- numeric(length=nks)
+
+recall.train <- numeric(length=nks)
+recall.test <- numeric(length=nks)
+```
+
+```{r}
+for (i in seq(along=ks)) {
+mod.train <- knn(trainDf,trainDf,k=ks[i],cl=train$diabetes)
+confussionMatrixTrain = table(mod.train, train$diabetes)
+accuracy.train[i] = sum(mod.train == train$diabetes)/length(train$diabetes)
+precision.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+recall.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+
+mod.test <- knn(trainDf, testDf[,-9],k= ks[i],cl= train$diabetes)
+confussionMatrixTest = table(mod.test, test$diabetes)
+accuracy.test[i] = sum(mod.test == test$diabetes)/length(test$diabetes)
+precision.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
+}
+```
+### {.tabset .tabset-fade .tabset-pills}
+Comparing the train and the test line in the plot, we see that with all evaluation metrics the train line achieves the maximum at k equal to 1, because we return the real value.
+
+#### Accuracy {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The accuracy achieves its maximum on the test dataset at k equal to 15.
+```{r}
+plot(accuracy.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy")
+axis(1, 1:length(ks), as.character(ks))
+lines(accuracy.train,type="b",col='red',pch=20)
+lines(accuracy.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+#### Precision {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The precision achieves its maximum on the test dataset at k equal to 23.
+```{r}
+plot(precision.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision")
+axis(1, 1:length(ks), as.character(ks))
+lines(precision.train,type="b",col='red',pch=20)
+lines(precision.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+#### Recall {.tabset .tabset-fade .tabset-pills}
+</br>
+The recall achieves its maximum on the test dataset at k equal to 15. 
+
+```{r}
+plot(recall.train,xlab="Number of NN",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall")
+axis(1, 1:length(ks), as.character(ks))
+lines(recall.train,type="b",col='red',pch=20)
+lines(recall.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+###Plotting the boundaries in different dimensions
+We implemented the function plot.knn to visualize the boundaries in the given columns of indexA and indexB, and then show these two dimensions.
+
+```{r}
+col1<-c('blue', 'magenta')
+
+plot.knn <- function(k, indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  predicted.classes <- knn(trainDf[, c(indexA, indexB)], grid, train$diabetes, k=k)
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with k=", k))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+```
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plot of the boundaries between columns glucose and age
+
+```{r}
+plot.knn(15, 2, 8)
+```
+#### Pressure and mass
+Plot of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.knn(23, 3, 6)
+
+```
+#### Triceps and insulin
+Plot of the boundaries between columns triceps and insulin
+
+```{r}
+plot.knn(23, 4, 5)
+```
+#### Age and pedigree
+Plot of the boundaries between columns age and pedigree
+
+```{r}
+plot.knn(15, 8, 7)
+```
+###Plotting the boundaries in the first two PCA components
+```{r}
+res.pca <- prcomp(data[,1:8], scale = TRUE)
+
+plot.knn.pca <- function(k) {
+  pca.values <- prcomp(trainDf)$x
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+  predicted.classes <- knn(pca.values[,c(1,2)], grid, train$diabetes, k=k)
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification with k=", k))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+
+
+### {.tabset .tabset-fade .tabset-pills}
+We tried plotting the first two principal components with a different value of the k, and we can see that this parameter affects the smoothness of the boundaries contour.  With the higher value of k, the contour is smoother, and the boundaries are less specific.  For example, we see that the model with k equal to one is obviously overfitting the train data.
+
+#### k = 1 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(1)
+```
+
+#### k = 7 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(7)
+```
+
+#### k = 15 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(15)
+```
+
+#### k = 23 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(23)
+```
+
+#### k = 50 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(50)
+```
+
+#### k = 100 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.knn.pca(100)
+```
+
+##Logistic regression
+
+Firstly in the logistic regression method we tried the model with all columns of the data. Then we saw that the columns insulin, age, pressure, and triceps have higher p-value then 5%, so in the final model, they are not significant.
+
+```{r}
+glm <- glm(diabetes~.,family=binomial(logit),data=train)
+summary(glm)
+```
+
+So we made the second model only with remaining significant variables. Furthermore, we discovered that all the remaining variables are significant.
+
+```{r}
+glm2 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=train)
+summary(glm2)
+```
+###The evaluation for the logistic regression
+```{r}
+    predicted.classes.train <- predict(glm2, trainDf, type = "response")
+    predicted.classes.train <- sapply(predicted.classes.train, function(x) round(x) + 1)
+
+    confussionMatrixTrain = table(predicted.classes.train, train$diabetes)
+    logr.accuracy.train <- (confussionMatrixTrain[1,1] + confussionMatrixTrain[2,2]) / length(predicted.classes.train)
+    logr.precision.train <- confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+    logr.recall.train <- confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+    
+    predicted.classes.test <- predict(glm2, testDf, type = "response")
+    predicted.classes.test <- sapply(predicted.classes.test, function(x) round(x) + 1)
+    
+    confussionMatrixTest <- table(predicted.classes.test, test$diabetes)
+    logr.accuracy.test <- (confussionMatrixTest[1,1] + confussionMatrixTest[2,2]) / length(predicted.classes.test)
+    logr.precision.test <- confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+    logr.recall.test <- confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
+```
+#####Accuracy of the model is on the train dataset is `r logr.accuracy.train`.
+
+#####Precision of the model is on the train dataset is `r logr.precision.train`.
+
+#####Recall of the model is on the train dataset is `r logr.recall.train`.
+
+</br>
+
+#####Accuracy of the model is on the test dataset is `r logr.accuracy.test`.
+
+#####Precision of the model is on the test dataset is `r logr.precision.test`.
+
+#####Recall of the model is on the test dataset is `r logr.recall.test`.
+
+
+###Boundaries of  logistic regression in different variables
+```{r}
+plot.logRegression.boundaries <- function(indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  glm2 <- glm(diabetes~.,family=binomial(logit),data = train[, c(indexA, indexB, 9)])
+  predicted.classes <- predict(glm2, grid, type = "response")
+  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with logistic regression"))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plot of the boundaries between columns glucose and age
+
+```{r}
+plot.logRegression.boundaries(2, 8)
+```
+#### Pressure and mass
+Plot of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.logRegression.boundaries(3, 6)
+
+```
+#### Triceps and insulin
+Plot of the boundaries between columns triceps and insulin
+
+```{r}
+plot.logRegression.boundaries(4, 5)
+```
+#### Age and pedigree
+Plot of the boundaries between columns age and pedigree
+
+```{r}
+plot.logRegression.boundaries(8, 7)
+```
+###Bundaries of logistic regression in PCA
+```{r}
+plot.logRegression.pca <- function() {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  glm2 <- glm(diabetes~.,family=binomial(logit),data=pca.df)
+  predicted.classes <- predict(glm2, grid, type = "response")
+  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
+
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification of logistic regression"))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+
+plot.logRegression.pca()
+```
+
+##CART
+
+In the cart method, we used for restraining the depth of the tree the parameter minbucket, which controls the minimum size of the leaves of the tree. Then we plot the test and train error for each bucket to find out the best value for the parameter minbucket.
+```{r}
+possible_bucket_sizes <- seq(1, 300, 10)
+nks <- length(possible_bucket_sizes)
+
+accuracy.train <- numeric(length=nks)
+accuracy.test <- numeric(length=nks)
+
+precision.train <- numeric(length=nks)
+precision.test <- numeric(length=nks)
+
+recall.train <- numeric(length=nks)
+recall.test <- numeric(length=nks)
+
+for(i in seq(1:length(possible_bucket_sizes))){
+  cart_model <- rpart(diabetes ~., data = train, method = "class",control = rpart.control(minbucket = possible_bucket_sizes[i]))
+  predicted.classes.test <- predict(cart_model, testDf, type = "class")
+  predicted.classes.train <- predict(cart_model, trainDf, type = "class")
+
+    confussionMatrixTrain = table(predicted.classes.train, train$diabetes)
+    accuracy.train[i] <- mean(predicted.classes.train == train$diabetes)
+    precision.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+    recall.train[i] = confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+
+    confussionMatrixTest = table(predicted.classes.test, test$diabetes)
+    accuracy.test[i] <- mean(predicted.classes.test == test$diabetes)
+    precision.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+    recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
+}
+
+```
+### {.tabset .tabset-fade .tabset-pills}
+When we compare the train and the test line in the plot, we see that all evaluation metrics are in the train line at the maxim with k equals 1, because we return the real value.
+
+#### Accuracy {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The accuracy achieves its maximum on the test dataset with k equals 15.
+```{r}
+plot(accuracy.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy",)
+axis(1, 1:length(ks), as.character(ks))
+lines(accuracy.train,type="b",col='red',pch=20)
+lines(accuracy.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+#### Precision {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The precision achieves its maximum on the test dataset with k equals 23.
+```{r}
+plot(precision.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision",)
+axis(1, 1:length(ks), as.character(ks))
+lines(precision.train,type="b",col='red',pch=20)
+lines(precision.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+#### Recall {.tabset .tabset-fade .tabset-pills}
+</br>
+The recall achieves its maximum on the test dataset with k equals 15. 
+
+```{r}
+plot(recall.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall",)
+axis(1, 1:length(ks), as.character(ks))
+lines(recall.train,type="b",col='red',pch=20)
+lines(recall.test,type="b",col='blue',pch=20)
+legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+```{r}
+plot.treeBoundaries <- function(mb, indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  cart_model <- rpart(diabetes ~ . , data = train[, c(indexA, indexB, 9)], method = "class",control = rpart.control(minbucket = mb))
+  predicted.classes <- predict(cart_model, grid, type = "class")
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with minibucket size=", mb))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plotting of the boundaries between columns glucose and age
+
+```{r}
+plot.treeBoundaries(23, 2, 8)
+```
+#### Pressure and mass
+Plotting of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.treeBoundaries(23,3, 6)
+
+```
+#### Triceps and insulin
+Plotting of the boundaries between columns triceps and insulin
+
+```{r}
+plot.treeBoundaries(23,4, 5)
+```
+#### Age and pedigree
+Plotting of the boundaries between columns age and pedigree
+
+```{r}
+plot.treeBoundaries(23, 8, 7)
+```
+###Plotting first two components of PCA
+```{r}
+plot.treeBoundaries.pca <- function(mb) {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  cart_model <- rpart(diabetes ~., data = pca.df, method = "class",control = rpart.control(minbucket = mb))
+  predicted.classes <- predict(cart_model, grid, type = "class")
+
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA Classification with mini bucket size =", mb))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+
+### {.tabset .tabset-fade .tabset-pills}
+We tried plotting the first two principal components with a different value of the minbucket. We see that with a lower value, the model is overfitting the data. We can see it in the plots with minibucket equals 1 and 7. Furthermore,  with minbucket with value more than 50, we see that the tree consists only of the one node, and its probably underfitting the data.
+
+
+#### k = 1 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(1)
+```
+
+#### k = 7 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(7)
+```
+
+#### k = 15 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(15)
+```
+
+#### k = 23 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(23)
+```
+
+#### k = 35 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(35)
+```
+
+#### k = 50 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(50)
+```
+
+</br>
+
+## Linear regression
+
+Then we explored the linear regression method.
+Firstly we constructed a model with all the predictors and we saw that only pregnant, glucose, mass and pedegree were significant.
+
+```{r}
+ml<-lm(as.numeric(diabetes)~pregnant+glucose+pressure+triceps+insulin+mass+pedigree+age, data=train)
+summary(ml)
+
+```
+
+So we made a new model with the relevant variables. As we can see, they remain significant, so this is our final model.
+
+```{r}
+ml2<-lm(as.numeric(diabetes)~pregnant+glucose+ mass+pedigree, data=train)
+summary(ml2)
+```
+
+###Evaluation for linear regression
+
+To look at the expressiveness of our model we computed different evaluation metris (accuracy, precision and recall).
+
+```{r}
+    predicted.classes.train <- predict(ml2, trainDf, type = "response")
+    predicted.classes.train <- sapply(predicted.classes.train, function(x) round(x))
+
+    confussionMatrixTrain = table(predicted.classes.train, train$diabetes)
+    linreg.accuracy.train <- (confussionMatrixTrain[1,1] + confussionMatrixTrain[2,2]) / length(predicted.classes.train)
+    linreg.precision.train <- confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+    linreg.recall.train <- confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+    
+    predicted.classes.test <- predict(ml2, testDf, type = "response")
+    predicted.classes.test <- sapply(predicted.classes.test, function(x) round(x))
+    
+    confussionMatrixTest <- table(predicted.classes.test, test$diabetes)
+    linreg.accuracy.test <- (confussionMatrixTest[1,1] + confussionMatrixTest[2,2]) / length(predicted.classes.test)
+    linreg.precision.test <- confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+    linreg.recall.test <- confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
+```
+
+#####Accuracy of the model on the train dataset is `r linreg.accuracy.train`.
+
+#####Precision of the model on the train dataset is `r linreg.precision.train`.
+
+#####Recall of the model on the train dataset is `r linreg.recall.train`.
+
+</br>
+
+#####Accuracy of the model on the test dataset is `r linreg.accuracy.test`.
+
+#####Precision of the model on the test dataset is `r linreg.precision.test`.
+
+#####Recall of the model on the test dataset is `r linreg.recall.test`.
+
+###Decision boundaries of Linear Regression with different variables
+
+
+```{r}
+plot.linreg.boundaries <- function(indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  ml <- lm(as.numeric(diabetes)~.,data = train[, c(indexA, indexB, 9)])
+  predicted.classes <- round(predict(ml, grid, type = "response"))
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with linear regression"))
+  predicted.matrix <- matrix(predicted.classes, length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plot of the boundaries between columns glucose and age
+
+```{r}
+plot.linreg.boundaries(2, 8)
+```
+#### Pressure and mass
+Plot of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.linreg.boundaries(3, 6)
+
+```
+#### Triceps and insulin
+Plot of the boundaries between columns triceps and insulin
+
+```{r}
+plot.linreg.boundaries(4, 5)
+```
+#### Age and pedigree
+Plot of the boundaries between columns age and pedigree
+
+```{r}
+plot.linreg.boundaries(8, 7)
+```
+
+###Decision boundaries of linear regression in PCA
+
+Finally we draw decision boundaries with the two first components in PCA.
+
+```{r}
+plot.linreg.pca <- function() {
+  pca.values <- prcomp(trainDf)$x
+  pca.df <- as.data.frame.matrix(pca.values[,c(1,2)])
+  pca.df$diabetes <- train$diabetes
+  
+  grid.PC1 <- seq(min(pca.values[,1]), max(pca.values[,1]), 5)
+  grid.PC2 <- seq(min(pca.values[,2]), max(pca.values[,2]), 1)
+  grid <- expand.grid(grid.PC1,grid.PC2)
+  colnames(grid) <- c('PC1','PC2')
+    
+  ml <- lm(as.numeric(diabetes)~.,data=pca.df)
+  predicted.classes <- round(predict(ml, grid, type = "response"))
+
+  plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
+  points(grid$PC1, grid$PC2, pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("PCA classification of linear regression"))
+  
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
+  contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+
+
+plot.linreg.pca()
+```
+
+##Conclusion
+TODO
