@@ -252,27 +252,102 @@ plot.knn.pca(100)
 ```
 
 ##Logistic regression
+
+Firstly in the logistic regression method, we tried the model with all columns of the data. Then we saw that the columns insulin, age, pressure, and triceps have higher p-value then 5%, so in the final model, they are not significant.
+
 ```{r}
-glm <- glm(diabetes~.,family=binomial(logit),data=data)
+glm <- glm(diabetes~.,family=binomial(logit),data=train)
 summary(glm)
 ```
-we see thath Significant are only pregnant, glucoe, intercept, mass and pedigree
+
+So we made the second model only with remaining significant variables. Furthermore, we discovered that all the remaining variables are significant.
+
 ```{r}
-glm2 <- glm(diabetes~pregnant + glucose + insulin + mass + pedigree,family=binomial(logit),data=data)
+glm2 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=train)
 summary(glm2)
 ```
-now the insulin is not significant
+###The evaluation for the logistic regression
 ```{r}
-glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
-summary(glm3)
+    predicted.classes.train <- predict(glm2, trainDf, type = "response")
+    predicted.classes.train <- sapply(predicted.classes.train, function(x) round(x) + 1)
+
+    confussionMatrixTrain = table(predicted.classes.train, train$diabetes)
+    logr.accuracy.train <- (confussionMatrixTrain[1,1] + confussionMatrixTrain[2,2]) / length(predicted.classes.train)
+    logr.precision.train <- confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[,1])
+    logr.recall.train <- confussionMatrixTrain[1,1]/sum(confussionMatrixTrain[1,])
+    
+    predicted.classes.test <- predict(glm2, testDf, type = "response")
+    predicted.classes.test <- sapply(predicted.classes.test, function(x) round(x) + 1)
+    
+    confussionMatrixTest <- table(predicted.classes.test, test$diabetes)
+    logr.accuracy.test <- (confussionMatrixTest[1,1] + confussionMatrixTest[2,2]) / length(predicted.classes.test)
+    logr.precision.test <- confussionMatrixTest[1,1]/sum(confussionMatrixTest[,1])
+    logr.recall.test <- confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
 ```
-```{r}
-glm3 <- glm(diabetes~pregnant + glucose + mass + pedigree,family=binomial(logit),data=data)
-summary(glm3)
-```
+#####Accuracy of the model is on the train dataset is `r logr.accuracy.train`.
+
+#####Precision of the model is on the train dataset is `r logr.precision.train`.
+
+#####Recall of the model is on the train dataset is `r logr.recall.train`.
+
+</br>
+
+#####Accuracy of the model is on the test dataset is `r logr.accuracy.test`.
+
+#####Precision of the model is on the test dataset is `r logr.precision.test`.
+
+#####Recall of the model is on the test dataset is `r logr.recall.test`.
 
 
-Bundaries of logistic regression
+###Boundaries of  logistic regression in different variables
+```{r}
+plot.logRegression.boundaries <- function(indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  glm2 <- glm(diabetes~.,family=binomial(logit),data = train[, c(indexA, indexB, 9)])
+  predicted.classes <- predict(glm2, grid, type = "response")
+  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with logistic regression"))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plotting of the boundaries between columns glucose and age
+
+```{r}
+plot.logRegression.boundaries(2, 8)
+```
+#### Pressure and mass
+Plotting of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.logRegression.boundaries(3, 6)
+
+```
+#### Triceps and insulin
+Plotting of the boundaries between columns triceps and insulin
+
+```{r}
+plot.logRegression.boundaries(4, 5)
+```
+#### Age and pedigree
+Plotting of the boundaries between columns age and pedigree
+
+```{r}
+plot.logRegression.boundaries(8, 7)
+```
+###Bundaries of logistic regression in PCA
 ```{r}
 plot.logRegression.pca <- function() {
   pca.values <- prcomp(trainDf)$x
@@ -284,8 +359,8 @@ plot.logRegression.pca <- function() {
   grid <- expand.grid(grid.PC1,grid.PC2)
   colnames(grid) <- c('PC1','PC2')
     
-  glm3 <- glm(diabetes~.,family=binomial(logit),data=pca.df)
-  predicted.classes <- predict(glm3, grid, type = "response")
+  glm2 <- glm(diabetes~.,family=binomial(logit),data=pca.df)
+  predicted.classes <- predict(glm2, grid, type = "response")
   predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
 
   plot(pca.values[,1], pca.values[,2], pch=20, col=col1[as.numeric(train$diabetes)], xlab='PC1', ylab='PC2')
@@ -300,54 +375,10 @@ plot.logRegression.pca <- function() {
 
 plot.logRegression.pca()
 ```
-```{r}
-plot.logRegression.boundaries <- function(indexA, indexB) {
-  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
-  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
-  grid <- expand.grid(grid.A,grid.B)
-  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
-  
-  glm3 <- glm(diabetes~.,family=binomial(logit),data = train[, c(indexA, indexB, 9)])
-  predicted.classes <- predict(glm3, grid, type = "response")
-  predicted.classes <- lapply(predicted.classes, function(x) round(x) + 1)
-  
-  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
-  
-  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
-  legend("topleft", legend=levels(data$diabetes),fill =col1)
-  title(c("Classification with logistic regression"))
-  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
-  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
-}
 
+##CART
 
-plot.logRegression.boundaries(2, 8)
-plot.logRegression.boundaries(3, 6)
-```
-
-CART
-```{r}
-model1 <- rpart(diabetes ~., data = data, method = "class")
-str(model1)
-# Plot the trees
-printcp(model1) # display the results
-plotcp(model1) # visualize cross-validation results
-summary(model1) # detailed summary of splits
-predicted.classes <- predict(model1, testDf, type = "class")
-
-print(1 - mean(predicted.classes == test$diabetes))
-
-# plot tree
-plot(model1, uniform=TRUE,
-   main="Classification Tree for Diabetess")
-text(model1, use.n=TRUE, all=TRUE, cex=.8)
-bestcp <- model1$cptable[which.min(model1$cptable[,"xerror"]),"CP"]
-model1.pruned <- prune(model1, cp = bestcp)
-conf.matrix <- table(data$diabetes, predict(model1.pruned,type="class"))
-rownames(conf.matrix) <- paste("Actual", rownames(conf.matrix), sep = ":")
-colnames(conf.matrix) <- paste("Pred", colnames(conf.matrix), sep = ":")
-print(conf.matrix)
-```
+In the cart method, we used for restraining the depth of the tree the parameter minbucket, which controls the minimum size of the leaves of the tree. Then we plot the test and train error for each bucket to find out the best value for the parameter minbucket.
 ```{r}
 possible_bucket_sizes <- seq(1, 300, 10)
 nks <- length(possible_bucket_sizes)
@@ -377,29 +408,93 @@ for(i in seq(1:length(possible_bucket_sizes))){
     recall.test[i] = confussionMatrixTest[1,1]/sum(confussionMatrixTest[1,])
 }
 
-#Accuracy
+```
+### {.tabset .tabset-fade .tabset-pills}
+When we compare the train and the test line in the plot, we see that all evaluation metrics are in the train line at the maxim with k equals 1, because we return the real value.
+
+#### Accuracy {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The accuracy achieves its maximum on the test dataset with k equals 15.
+```{r}
 plot(accuracy.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Accuracy",)
 axis(1, 1:length(ks), as.character(ks))
 lines(accuracy.train,type="b",col='red',pch=20)
 lines(accuracy.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
 
-#Precision
+#### Precision {.tabset .tabset-fade .tabset-pills}
+</br>
+
+The precision achieves its maximum on the test dataset with k equals 23.
+```{r}
 plot(precision.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Precision",)
 axis(1, 1:length(ks), as.character(ks))
 lines(precision.train,type="b",col='red',pch=20)
 lines(precision.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
 
+#### Recall {.tabset .tabset-fade .tabset-pills}
+</br>
+The recall achieves its maximum on the test dataset with k equals 15. 
 
-#Recall
+```{r}
 plot(recall.train,xlab="Number of items in leafs",ylab="Test error",type="n",xaxt="n", ylim=c(0.5, 1),  main="Recall",)
 axis(1, 1:length(ks), as.character(ks))
 lines(recall.train,type="b",col='red',pch=20)
 lines(recall.test,type="b",col='blue',pch=20)
 legend("bottomright",lty=1,col=c("red","blue"),legend = c("train ", "test "))
+```
+
+```{r}
+plot.treeBoundaries <- function(mb, indexA, indexB) {
+  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
+  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
+  grid <- expand.grid(grid.A,grid.B)
+  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
+  
+  cart_model <- rpart(diabetes ~ . , data = train[, c(indexA, indexB, 9)], method = "class",control = rpart.control(minbucket = mb))
+  predicted.classes <- predict(cart_model, grid, type = "class")
+  
+  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
+  
+  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
+  legend("topleft", legend=levels(data$diabetes),fill =col1)
+  title(c("Classification with minibucket size=", mb))
+  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
+  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+}
+```
+### {.tabset .tabset-fade .tabset-pills}
+#### Glucose and age
+Plotting of the boundaries between columns glucose and age
+
+```{r}
+plot.treeBoundaries(23, 2, 8)
+```
+#### Pressure and mass
+Plotting of the boundaries between columns pressure and mass
+
+
+```{r}
+plot.treeBoundaries(23,3, 6)
 
 ```
+#### Triceps and insulin
+Plotting of the boundaries between columns triceps and insulin
+
+```{r}
+plot.treeBoundaries(23,4, 5)
+```
+#### Age and pedigree
+Plotting of the boundaries between columns age and pedigree
+
+```{r}
+plot.treeBoundaries(23, 8, 7)
+```
+###Plotting first two components of PCA
 ```{r}
 plot.treeBoundaries.pca <- function(mb) {
   pca.values <- prcomp(trainDf)$x
@@ -422,33 +517,44 @@ plot.treeBoundaries.pca <- function(mb) {
   predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.PC1), length(grid.PC2))
   contour(grid.PC1, grid.PC2, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
 }
-
-
-plot.treeBoundaries.pca(1)
-plot.treeBoundaries.pca(20)
-plot.treeBoundaries.pca(100)
-
 ```
+
+### {.tabset .tabset-fade .tabset-pills}
+We tried plotting the first two principal components with a different value of the minbucket. We see that with a lower value, the model is overfitting the data. We can see it in the plots with minibucket equals 1 and 7. Furthermore,  with minbucket with value more than 50, we see that the tree consists only of the one node, and its probably underfitting the data.
+
+
+#### k = 1 {.tabset .tabset-fade .tabset-pills}
 ```{r}
-plot.treeBoundaries <- function(mb, indexA, indexB) {
-  grid.A <- seq(min(data[,indexA]), max(data[,indexA]), (max(data[,indexA]) - min(data[,indexA])) / 100)
-  grid.B <- seq(min(data[,indexB]), max(data[,indexB]), (max(data[,indexB]) - min(data[,indexB])) / 100)
-  grid <- expand.grid(grid.A,grid.B)
-  colnames(grid) <- colnames(trainDf[, c(indexA, indexB)])
-  
-  cart_model <- rpart(diabetes ~ . , data = train[, c(indexA, indexB, 9)], method = "class",control = rpart.control(minbucket = mb))
-  predicted.classes <- predict(cart_model, grid, type = "class")
-  
-  plot(data[, indexA], data[ ,indexB], pch=20, col=col1[as.numeric(data$diabetes)], xlab=colnames(data)[indexA], ylab=colnames(data)[indexB])
-  
-  points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
-  legend("topleft", legend=levels(data$diabetes),fill =col1)
-  title(c("Classification with minibucket size=", mb))
-  predicted.matrix <- matrix(as.numeric(predicted.classes), length(grid.A), length(grid.B))
-  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
-}
-
-
-plot.treeBoundaries(5, 2, 8)
-plot.treeBoundaries(5, 3, 6)
+plot.treeBoundaries.pca(1)
 ```
+
+#### k = 7 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(7)
+```
+
+#### k = 15 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(15)
+```
+
+#### k = 23 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(23)
+```
+
+#### k = 35 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(35)
+```
+
+#### k = 50 {.tabset .tabset-fade .tabset-pills}
+```{r}
+plot.treeBoundaries.pca(50)
+```
+
+##Linear regression
+TODO
+
+##Conclusion
+TODO
