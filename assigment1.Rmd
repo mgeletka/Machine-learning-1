@@ -633,7 +633,7 @@ plot.linreg.boundaries <- function(indexA, indexB) {
   points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(data$diabetes),fill =col1)
   title(c("Classification with linear regression"))
-  abline((1,5-ml§coefficients[1])/ml$coefficients[3],ml$coeficcients[2]/mlml§coefficients[3])
+   abline((1.5-ml$coefficients[1])/ml$coefficients[3],-ml$coeficcients[2]/ml$coefficients[3])
 }
 ```
 
