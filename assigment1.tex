@@ -1,0 +1,1261 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Machine learning 1 assigment},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{Machine learning 1 assigment}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\#\#Introduction
+
+The purpose of this assignment is to compare and study different methods
+and approaches in the classification of data. We want to focus on how
+different methods and their tuning parameters affect the expressiveness
+of the final model.
+
+We chose four different methods:
+
+\begin{itemize}
+\tightlist
+\item
+  the knn,
+\item
+  the linear regression,
+\item
+  decision trees
+\item
+  logistic regression.
+\end{itemize}
+
+For each method, we plot the error on the test and train dataset and
+evaluate the expressiveness of the models with different tuning
+parameters. For the evaluation of the methods, we used the Pima Indians
+Diabetes available in the R data utils.
+
+\#\#\#\#Importing libraries and loading the data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(}\StringTok{"mlbench"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'mlbench' was built under R version 3.6.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(}\StringTok{"caTools"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'caTools' was built under R version 3.6.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(}\StringTok{"class"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'class' was built under R version 3.6.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(mice)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: lattice
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'mice'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     cbind, rbind
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(grid)}
+\KeywordTok{library}\NormalTok{(}\StringTok{"rpart"}\NormalTok{)}
+\KeywordTok{library}\NormalTok{(GGally)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'GGally' was built under R version 3.6.3
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: ggplot2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'ggplot2' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Registered S3 method overwritten by 'GGally':
+##   method from   
+##   +.gg   ggplot2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{utils}\OperatorTok{::}\KeywordTok{data}\NormalTok{(}\StringTok{"PimaIndiansDiabetes2"}\NormalTok{)}
+\NormalTok{data <-}\StringTok{ }\NormalTok{PimaIndiansDiabetes2}
+\end{Highlighting}
+\end{Shaded}
+
+\#\#\#\#Replacing NA values After loading the data, we found out that
+some columns contain the NA values. Firstly we deleted all rows with
+this value, but these rows were too high. So secondly, we tried to
+replace the missing values with their averages, but this introduces much
+noise to the data. So finally, we used the mice library and its
+imputations methods for dealing with NA values.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{101}\NormalTok{) }
+\NormalTok{init =}\StringTok{ }\KeywordTok{mice}\NormalTok{(data, }\DataTypeTok{maxit=}\DecValTok{0}\NormalTok{) }
+\NormalTok{data <-}\StringTok{ }\KeywordTok{complete}\NormalTok{(}\KeywordTok{mice}\NormalTok{(data, }\DataTypeTok{method=}\NormalTok{init}\OperatorTok{$}\NormalTok{method, }\DataTypeTok{predictorMatrix=}\NormalTok{init}\OperatorTok{$}\NormalTok{predictorMatrix, }\DataTypeTok{m=}\DecValTok{5}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  iter imp variable
+##   1   1  glucose  pressure  triceps  insulin  mass
+##   1   2  glucose  pressure  triceps  insulin  mass
+##   1   3  glucose  pressure  triceps  insulin  mass
+##   1   4  glucose  pressure  triceps  insulin  mass
+##   1   5  glucose  pressure  triceps  insulin  mass
+##   2   1  glucose  pressure  triceps  insulin  mass
+##   2   2  glucose  pressure  triceps  insulin  mass
+##   2   3  glucose  pressure  triceps  insulin  mass
+##   2   4  glucose  pressure  triceps  insulin  mass
+##   2   5  glucose  pressure  triceps  insulin  mass
+##   3   1  glucose  pressure  triceps  insulin  mass
+##   3   2  glucose  pressure  triceps  insulin  mass
+##   3   3  glucose  pressure  triceps  insulin  mass
+##   3   4  glucose  pressure  triceps  insulin  mass
+##   3   5  glucose  pressure  triceps  insulin  mass
+##   4   1  glucose  pressure  triceps  insulin  mass
+##   4   2  glucose  pressure  triceps  insulin  mass
+##   4   3  glucose  pressure  triceps  insulin  mass
+##   4   4  glucose  pressure  triceps  insulin  mass
+##   4   5  glucose  pressure  triceps  insulin  mass
+##   5   1  glucose  pressure  triceps  insulin  mass
+##   5   2  glucose  pressure  triceps  insulin  mass
+##   5   3  glucose  pressure  triceps  insulin  mass
+##   5   4  glucose  pressure  triceps  insulin  mass
+##   5   5  glucose  pressure  triceps  insulin  mass
+\end{verbatim}
+
+\hypertarget{summary-of-data}{%
+\paragraph{Summary of data}\label{summary-of-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p <-}\StringTok{ }\KeywordTok{ggpairs}\NormalTok{(data[}\KeywordTok{sample}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(data),}\DecValTok{100}\NormalTok{),], }\DataTypeTok{columns =} \DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{, ggplot2}\OperatorTok{::}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{colour=}\NormalTok{diabetes), }\DataTypeTok{lower =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{continuous=}\KeywordTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{)), }\DataTypeTok{progress=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{legend=}\DecValTok{1}\NormalTok{)}
+\NormalTok{p}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\#\#\#\#Dividing the data into train and test dataset
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sample <-}\StringTok{ }\KeywordTok{sample.split}\NormalTok{(data, }\DataTypeTok{SplitRatio =} \FloatTok{0.8}\NormalTok{)}
+\NormalTok{train <-}\StringTok{ }\KeywordTok{subset}\NormalTok{(data, sample }\OperatorTok{==}\StringTok{ }\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{test  <-}\StringTok{ }\KeywordTok{subset}\NormalTok{(data, sample }\OperatorTok{==}\StringTok{ }\OtherTok{FALSE}\NormalTok{)}
+\NormalTok{trainDf <-}\StringTok{ }\NormalTok{train[, }\DecValTok{-9}\NormalTok{]}
+\NormalTok{testDf <-}\StringTok{ }\NormalTok{test[,}\OperatorTok{-}\DecValTok{9}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#NA2mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))}
+\CommentTok{#trainDf <- replace(trainDf, TRUE, lapply(trainDf, NA2mean))}
+\CommentTok{#testDf <- replace(testDf, TRUE, lapply(testDf, NA2mean))}
+\CommentTok{#pred.classes <- knn(trainDf, testDf, train$diabetes, k=5)}
+\CommentTok{#testDf <- cbind(testDf,pred.classes)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{knn-evaluation}{%
+\subsection{KNN evaluation}\label{knn-evaluation}}
+
+We start with the knn method, whose parameter k represents the number of
+the neighbors. We plotted different evaluation metrics (accuracy,
+precision, and recall) for the test and train data for different values
+of the parameter k.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ks <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{9}\NormalTok{,}\DecValTok{11}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{17}\NormalTok{,}\DecValTok{23}\NormalTok{,}\DecValTok{25}\NormalTok{,}\DecValTok{35}\NormalTok{,}\DecValTok{45}\NormalTok{,}\DecValTok{55}\NormalTok{)}\CommentTok{# nearest neighbours to try}
+\NormalTok{nks <-}\StringTok{ }\KeywordTok{length}\NormalTok{(ks)}
+\NormalTok{accuracy.train <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{accuracy.test <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{precision.train <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{precision.test <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{recall.train <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{recall.test <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \KeywordTok{seq}\NormalTok{(}\DataTypeTok{along=}\NormalTok{ks)) \{}
+\NormalTok{mod.train <-}\StringTok{ }\KeywordTok{knn}\NormalTok{(trainDf,trainDf,}\DataTypeTok{k=}\NormalTok{ks[i],}\DataTypeTok{cl=}\NormalTok{train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{confussionMatrixTrain =}\StringTok{ }\KeywordTok{table}\NormalTok{(mod.train, train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{accuracy.train[i] =}\StringTok{ }\KeywordTok{sum}\NormalTok{(mod.train }\OperatorTok{==}\StringTok{ }\NormalTok{train}\OperatorTok{$}\NormalTok{diabetes)}\OperatorTok{/}\KeywordTok{length}\NormalTok{(train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{precision.train[i] =}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{recall.train[i] =}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[}\DecValTok{1}\NormalTok{,])}
+\NormalTok{mod.test <-}\StringTok{ }\KeywordTok{knn}\NormalTok{(trainDf, testDf[,}\OperatorTok{-}\DecValTok{9}\NormalTok{],}\DataTypeTok{k=}\NormalTok{ ks[i],}\DataTypeTok{cl=}\NormalTok{ train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{confussionMatrixTest =}\StringTok{ }\KeywordTok{table}\NormalTok{(mod.test, test}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{accuracy.test[i] =}\StringTok{ }\KeywordTok{sum}\NormalTok{(mod.test }\OperatorTok{==}\StringTok{ }\NormalTok{test}\OperatorTok{$}\NormalTok{diabetes)}\OperatorTok{/}\KeywordTok{length}\NormalTok{(test}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{precision.test[i] =}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{recall.test[i] =}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[}\DecValTok{1}\NormalTok{,])}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section}{%
+\subsubsection{}\label{section}}
+
+When we compare the train and the test line in the plot, we see that all
+evaluation metrics are in the train line at the maxim with k equals 1,
+because we return the real value.
+
+\hypertarget{accuracy}{%
+\paragraph{Accuracy}\label{accuracy}}
+
+The accuracy achieves its maximum on the test dataset with k equals 15.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(accuracy.train,}\DataTypeTok{xlab=}\StringTok{"Number of NN"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Test error"}\NormalTok{,}\DataTypeTok{type=}\StringTok{"n"}\NormalTok{,}\DataTypeTok{xaxt=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{),  }\DataTypeTok{main=}\StringTok{"Accuracy"}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(ks), }\KeywordTok{as.character}\NormalTok{(ks))}
+\KeywordTok{lines}\NormalTok{(accuracy.train,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(accuracy.test,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{),}\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"train "}\NormalTok{, }\StringTok{"test "}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\hypertarget{precision}{%
+\paragraph{Precision}\label{precision}}
+
+The precision achieves its maximum on the test dataset with k equals 23.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(precision.train,}\DataTypeTok{xlab=}\StringTok{"Number of NN"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Test error"}\NormalTok{,}\DataTypeTok{type=}\StringTok{"n"}\NormalTok{,}\DataTypeTok{xaxt=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{),  }\DataTypeTok{main=}\StringTok{"Precision"}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(ks), }\KeywordTok{as.character}\NormalTok{(ks))}
+\KeywordTok{lines}\NormalTok{(precision.train,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(precision.test,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{),}\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"train "}\NormalTok{, }\StringTok{"test "}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+\hypertarget{recall}{%
+\paragraph{Recall}\label{recall}}
+
+The recall achieves its maximum on the test dataset with k equals 15.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(recall.train,}\DataTypeTok{xlab=}\StringTok{"Number of NN"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Test error"}\NormalTok{,}\DataTypeTok{type=}\StringTok{"n"}\NormalTok{,}\DataTypeTok{xaxt=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{),  }\DataTypeTok{main=}\StringTok{"Recall"}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(ks), }\KeywordTok{as.character}\NormalTok{(ks))}
+\KeywordTok{lines}\NormalTok{(recall.train,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(recall.test,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{),}\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"train "}\NormalTok{, }\StringTok{"test "}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\#\#\#Plotting the boundaries in different dimensions We implemented the
+function plot.knn to visualize the boundaries in the given columns of
+indexA and indexB, and then show these two dimensions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{col1<-}\KeywordTok{c}\NormalTok{(}\StringTok{'blue'}\NormalTok{, }\StringTok{'magenta'}\NormalTok{)}
+\NormalTok{plot.knn <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(k, indexA, indexB) \{}
+\NormalTok{  grid.A <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexA]), }\KeywordTok{max}\NormalTok{(data[,indexA]), (}\KeywordTok{max}\NormalTok{(data[,indexA]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexA])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid.B <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexB]), }\KeywordTok{max}\NormalTok{(data[,indexB]), (}\KeywordTok{max}\NormalTok{(data[,indexB]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexB])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.A,grid.B)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{colnames}\NormalTok{(trainDf[, }\KeywordTok{c}\NormalTok{(indexA, indexB)])}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{knn}\NormalTok{(trainDf[, }\KeywordTok{c}\NormalTok{(indexA, indexB)], grid, train}\OperatorTok{$}\NormalTok{diabetes, }\DataTypeTok{k=}\NormalTok{k)}
+  \KeywordTok{plot}\NormalTok{(data[, indexA], data[ ,indexB], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\KeywordTok{colnames}\NormalTok{(data)[indexA], }\DataTypeTok{ylab=}\KeywordTok{colnames}\NormalTok{(data)[indexB])}
+  \KeywordTok{points}\NormalTok{(grid[, }\DecValTok{1}\NormalTok{], grid[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"Classification with k="}\NormalTok{, k))}
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.A), }\KeywordTok{length}\NormalTok{(grid.B))}
+  \KeywordTok{contour}\NormalTok{(grid.A, grid.B, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-1}{%
+\subsubsection{}\label{section-1}}
+
+\hypertarget{glucose-and-age}{%
+\paragraph{Glucose and age}\label{glucose-and-age}}
+
+Plotting of the boundaries between columns glucose and age
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn}\NormalTok{(}\DecValTok{15}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-12-1.pdf}
+\#\#\#\# Pressure and mass Plotting of the boundaries between columns
+pressure and mass
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn}\NormalTok{(}\DecValTok{23}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-13-1.pdf}
+\#\#\#\# Triceps and insulin Plotting of the boundaries between columns
+triceps and insulin
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn}\NormalTok{(}\DecValTok{23}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-14-1.pdf}
+\#\#\#\# Age and pedigree Plotting of the boundaries between columns age
+and pedigree
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn}\NormalTok{(}\DecValTok{15}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-15-1.pdf}
+\#\#\#Plotting the boundaties in the first two PCA components
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{res.pca <-}\StringTok{ }\KeywordTok{prcomp}\NormalTok{(data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{], }\DataTypeTok{scale =} \OtherTok{TRUE}\NormalTok{)}
+\NormalTok{plot.knn.pca <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(k) \{}
+\NormalTok{  pca.values <-}\StringTok{ }\KeywordTok{prcomp}\NormalTok{(trainDf)}\OperatorTok{$}\NormalTok{x}
+\NormalTok{  grid.PC1 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\DecValTok{5}\NormalTok{)}
+\NormalTok{  grid.PC2 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\DecValTok{1}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.PC1,grid.PC2)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'PC1'}\NormalTok{,}\StringTok{'PC2'}\NormalTok{)}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{knn}\NormalTok{(pca.values[,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)], grid, train}\OperatorTok{$}\NormalTok{diabetes, }\DataTypeTok{k=}\NormalTok{k)}
+  \KeywordTok{plot}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{], pca.values[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(train}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\StringTok{'PC1'}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{'PC2'}\NormalTok{)}
+  \KeywordTok{points}\NormalTok{(grid}\OperatorTok{$}\NormalTok{PC1, grid}\OperatorTok{$}\NormalTok{PC2, }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"PCA Classification with k="}\NormalTok{, k))}
+  
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.PC1), }\KeywordTok{length}\NormalTok{(grid.PC2))}
+  \KeywordTok{contour}\NormalTok{(grid.PC1, grid.PC2, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-2}{%
+\subsubsection{}\label{section-2}}
+
+We tried plotting the first two principal components with a different
+value of the k, and we can see that this parameter affects the
+smoothness of the boundaries contour. With the higher value of k, the
+contour is smoother, and the boundaries are less specific. For example,
+we see that the model with k equals one is obviously overfitting the
+train data.
+
+\hypertarget{k-1}{%
+\paragraph{k = 1}\label{k-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn.pca}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-17-1.pdf}
+
+\hypertarget{k-7}{%
+\paragraph{k = 7}\label{k-7}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn.pca}\NormalTok{(}\DecValTok{7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+\hypertarget{k-15}{%
+\paragraph{k = 15}\label{k-15}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn.pca}\NormalTok{(}\DecValTok{15}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-19-1.pdf}
+
+\hypertarget{k-23}{%
+\paragraph{k = 23}\label{k-23}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn.pca}\NormalTok{(}\DecValTok{23}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-20-1.pdf}
+
+\hypertarget{k-50}{%
+\paragraph{k = 50}\label{k-50}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn.pca}\NormalTok{(}\DecValTok{50}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-21-1.pdf}
+
+\hypertarget{k-100}{%
+\paragraph{k = 100}\label{k-100}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.knn.pca}\NormalTok{(}\DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-22-1.pdf}
+
+\#\#Logistic regression
+
+Firstly in the logistic regression method, we tried the model with all
+columns of the data. Then we saw that the columns insulin, age,
+pressure, and triceps have higher p-value then 5\%, so in the final
+model, they are not significant.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{glm <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(diabetes}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(logit),}\DataTypeTok{data=}\NormalTok{train)}
+\KeywordTok{summary}\NormalTok{(glm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = diabetes ~ ., family = binomial(logit), data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.7802  -0.7521  -0.4165   0.7210   2.3011  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(>|z|)    
+## (Intercept) -8.8065214  0.9218204  -9.553  < 2e-16 ***
+## pregnant     0.0974263  0.0362116   2.690  0.00714 ** 
+## glucose      0.0367428  0.0046411   7.917 2.44e-15 ***
+## pressure    -0.0123576  0.0097888  -1.262  0.20680    
+## triceps      0.0107334  0.0137321   0.782  0.43443    
+## insulin     -0.0005421  0.0011242  -0.482  0.62966    
+## mass         0.0874873  0.0221514   3.950 7.83e-05 ***
+## pedigree     0.9076200  0.3398162   2.671  0.00756 ** 
+## age          0.0176546  0.0110235   1.602  0.10926    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 776.76  on 596  degrees of freedom
+## Residual deviance: 563.64  on 588  degrees of freedom
+## AIC: 581.64
+## 
+## Number of Fisher Scoring iterations: 5
+\end{verbatim}
+
+So we made the second model only with remaining significant variables.
+Furthermore, we discovered that all the remaining variables are
+significant.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{glm2 <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(diabetes}\OperatorTok{~}\NormalTok{pregnant }\OperatorTok{+}\StringTok{ }\NormalTok{glucose }\OperatorTok{+}\StringTok{ }\NormalTok{mass }\OperatorTok{+}\StringTok{ }\NormalTok{pedigree,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(logit),}\DataTypeTok{data=}\NormalTok{train)}
+\KeywordTok{summary}\NormalTok{(glm2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = diabetes ~ pregnant + glucose + mass + pedigree, 
+##     family = binomial(logit), data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.8519  -0.7376  -0.4274   0.7189   2.3821  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(>|z|)    
+## (Intercept) -8.948893   0.779941 -11.474  < 2e-16 ***
+## pregnant     0.124819   0.030341   4.114 3.89e-05 ***
+## glucose      0.036290   0.003943   9.203  < 2e-16 ***
+## mass         0.088487   0.016632   5.320 1.04e-07 ***
+## pedigree     0.902777   0.338891   2.664  0.00772 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 776.76  on 596  degrees of freedom
+## Residual deviance: 567.85  on 592  degrees of freedom
+## AIC: 577.85
+## 
+## Number of Fisher Scoring iterations: 5
+\end{verbatim}
+
+\#\#\#The evaluation for the logistic regression
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{    predicted.classes.train <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(glm2, trainDf, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{    predicted.classes.train <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(predicted.classes.train, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{round}\NormalTok{(x) }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}
+\NormalTok{    confussionMatrixTrain =}\StringTok{ }\KeywordTok{table}\NormalTok{(predicted.classes.train, train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    logr.accuracy.train <-}\StringTok{ }\NormalTok{(confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(predicted.classes.train)}
+\NormalTok{    logr.precision.train <-}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    logr.recall.train <-}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[}\DecValTok{1}\NormalTok{,])}
+    
+\NormalTok{    predicted.classes.test <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(glm2, testDf, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{    predicted.classes.test <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(predicted.classes.test, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{round}\NormalTok{(x) }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}
+    
+\NormalTok{    confussionMatrixTest <-}\StringTok{ }\KeywordTok{table}\NormalTok{(predicted.classes.test, test}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    logr.accuracy.test <-}\StringTok{ }\NormalTok{(confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(predicted.classes.test)}
+\NormalTok{    logr.precision.test <-}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    logr.recall.test <-}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[}\DecValTok{1}\NormalTok{,])}
+\end{Highlighting}
+\end{Shaded}
+
+\#\#\#\#\#Accuracy of the model is on the train dataset is 0.7788945.
+
+\#\#\#\#\#Precision of the model is on the train dataset is 0.8935065.
+
+\#\#\#\#\#Recall of the model is on the train dataset is 0.7908046.
+
+\#\#\#\#\#Accuracy of the model is on the test dataset is 0.7660819.
+
+\#\#\#\#\#Precision of the model is on the test dataset is 0.8086957.
+
+\#\#\#\#\#Recall of the model is on the test dataset is 0.8378378.
+
+\#\#\#Boundaries of logistic regression in different variables
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot.logRegression.boundaries <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(indexA, indexB) \{}
+\NormalTok{  grid.A <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexA]), }\KeywordTok{max}\NormalTok{(data[,indexA]), (}\KeywordTok{max}\NormalTok{(data[,indexA]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexA])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid.B <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexB]), }\KeywordTok{max}\NormalTok{(data[,indexB]), (}\KeywordTok{max}\NormalTok{(data[,indexB]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexB])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.A,grid.B)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{colnames}\NormalTok{(trainDf[, }\KeywordTok{c}\NormalTok{(indexA, indexB)])}
+  
+\NormalTok{  glm2 <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(diabetes}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(logit),}\DataTypeTok{data =}\NormalTok{ train[, }\KeywordTok{c}\NormalTok{(indexA, indexB, }\DecValTok{9}\NormalTok{)])}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(glm2, grid, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(predicted.classes, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{round}\NormalTok{(x) }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}
+  
+  \KeywordTok{plot}\NormalTok{(data[, indexA], data[ ,indexB], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\KeywordTok{colnames}\NormalTok{(data)[indexA], }\DataTypeTok{ylab=}\KeywordTok{colnames}\NormalTok{(data)[indexB])}
+  
+  \KeywordTok{points}\NormalTok{(grid[, }\DecValTok{1}\NormalTok{], grid[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"Classification with logistic regression"}\NormalTok{))}
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.A), }\KeywordTok{length}\NormalTok{(grid.B))}
+  \KeywordTok{contour}\NormalTok{(grid.A, grid.B, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-3}{%
+\subsubsection{}\label{section-3}}
+
+\hypertarget{glucose-and-age-1}{%
+\paragraph{Glucose and age}\label{glucose-and-age-1}}
+
+Plotting of the boundaries between columns glucose and age
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.logRegression.boundaries}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-27-1.pdf}
+\#\#\#\# Pressure and mass Plotting of the boundaries between columns
+pressure and mass
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.logRegression.boundaries}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-28-1.pdf}
+\#\#\#\# Triceps and insulin Plotting of the boundaries between columns
+triceps and insulin
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.logRegression.boundaries}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-29-1.pdf}
+\#\#\#\# Age and pedigree Plotting of the boundaries between columns age
+and pedigree
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.logRegression.boundaries}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-30-1.pdf}
+\#\#\#Bundaries of logistic regression in PCA
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot.logRegression.pca <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{() \{}
+\NormalTok{  pca.values <-}\StringTok{ }\KeywordTok{prcomp}\NormalTok{(trainDf)}\OperatorTok{$}\NormalTok{x}
+\NormalTok{  pca.df <-}\StringTok{ }\KeywordTok{as.data.frame.matrix}\NormalTok{(pca.values[,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)])}
+\NormalTok{  pca.df}\OperatorTok{$}\NormalTok{diabetes <-}\StringTok{ }\NormalTok{train}\OperatorTok{$}\NormalTok{diabetes}
+  
+\NormalTok{  grid.PC1 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\DecValTok{5}\NormalTok{)}
+\NormalTok{  grid.PC2 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\DecValTok{1}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.PC1,grid.PC2)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'PC1'}\NormalTok{,}\StringTok{'PC2'}\NormalTok{)}
+    
+\NormalTok{  glm2 <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(diabetes}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{family=}\KeywordTok{binomial}\NormalTok{(logit),}\DataTypeTok{data=}\NormalTok{pca.df)}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(glm2, grid, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(predicted.classes, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{round}\NormalTok{(x) }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}
+  \KeywordTok{plot}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{], pca.values[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(train}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\StringTok{'PC1'}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{'PC2'}\NormalTok{)}
+  \KeywordTok{points}\NormalTok{(grid}\OperatorTok{$}\NormalTok{PC1, grid}\OperatorTok{$}\NormalTok{PC2, }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"PCA Classification of loggistic regression"}\NormalTok{))}
+  
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.PC1), }\KeywordTok{length}\NormalTok{(grid.PC2))}
+  \KeywordTok{contour}\NormalTok{(grid.PC1, grid.PC2, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\KeywordTok{plot.logRegression.pca}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-31-1.pdf}
+
+\#\#CART
+
+In the cart method, we used for restraining the depth of the tree the
+parameter minbucket, which controls the minimum size of the leaves of
+the tree. Then we plot the test and train error for each bucket to find
+out the best value for the parameter minbucket.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{possible_bucket_sizes <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{300}\NormalTok{, }\DecValTok{10}\NormalTok{)}
+\NormalTok{nks <-}\StringTok{ }\KeywordTok{length}\NormalTok{(possible_bucket_sizes)}
+\NormalTok{accuracy.train <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{accuracy.test <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{precision.train <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{precision.test <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{recall.train <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\NormalTok{recall.test <-}\StringTok{ }\KeywordTok{numeric}\NormalTok{(}\DataTypeTok{length=}\NormalTok{nks)}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(possible_bucket_sizes)))\{}
+\NormalTok{  cart_model <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(diabetes }\OperatorTok{~}\NormalTok{., }\DataTypeTok{data =}\NormalTok{ train, }\DataTypeTok{method =} \StringTok{"class"}\NormalTok{,}\DataTypeTok{control =} \KeywordTok{rpart.control}\NormalTok{(}\DataTypeTok{minbucket =}\NormalTok{ possible_bucket_sizes[i]))}
+\NormalTok{  predicted.classes.test <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(cart_model, testDf, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
+\NormalTok{  predicted.classes.train <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(cart_model, trainDf, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
+\NormalTok{    confussionMatrixTrain =}\StringTok{ }\KeywordTok{table}\NormalTok{(predicted.classes.train, train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    accuracy.train[i] <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(predicted.classes.train }\OperatorTok{==}\StringTok{ }\NormalTok{train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    precision.train[i] =}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    recall.train[i] =}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[}\DecValTok{1}\NormalTok{,])}
+\NormalTok{    confussionMatrixTest =}\StringTok{ }\KeywordTok{table}\NormalTok{(predicted.classes.test, test}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    accuracy.test[i] <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(predicted.classes.test }\OperatorTok{==}\StringTok{ }\NormalTok{test}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    precision.test[i] =}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    recall.test[i] =}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[}\DecValTok{1}\NormalTok{,])}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-4}{%
+\subsubsection{}\label{section-4}}
+
+When we compare the train and the test line in the plot, we see that all
+evaluation metrics are in the train line at the maxim with k equals 1,
+because we return the real value.
+
+\hypertarget{accuracy-1}{%
+\paragraph{Accuracy}\label{accuracy-1}}
+
+The accuracy achieves its maximum on the test dataset with k equals 15.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(accuracy.train,}\DataTypeTok{xlab=}\StringTok{"Number of items in leafs"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Test error"}\NormalTok{,}\DataTypeTok{type=}\StringTok{"n"}\NormalTok{,}\DataTypeTok{xaxt=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{),  }\DataTypeTok{main=}\StringTok{"Accuracy"}\NormalTok{,)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(ks), }\KeywordTok{as.character}\NormalTok{(ks))}
+\KeywordTok{lines}\NormalTok{(accuracy.train,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(accuracy.test,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{),}\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"train "}\NormalTok{, }\StringTok{"test "}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-33-1.pdf}
+
+\hypertarget{precision-1}{%
+\paragraph{Precision}\label{precision-1}}
+
+The precision achieves its maximum on the test dataset with k equals 23.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(precision.train,}\DataTypeTok{xlab=}\StringTok{"Number of items in leafs"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Test error"}\NormalTok{,}\DataTypeTok{type=}\StringTok{"n"}\NormalTok{,}\DataTypeTok{xaxt=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{),  }\DataTypeTok{main=}\StringTok{"Precision"}\NormalTok{,)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(ks), }\KeywordTok{as.character}\NormalTok{(ks))}
+\KeywordTok{lines}\NormalTok{(precision.train,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(precision.test,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{),}\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"train "}\NormalTok{, }\StringTok{"test "}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-34-1.pdf}
+
+\hypertarget{recall-1}{%
+\paragraph{Recall}\label{recall-1}}
+
+The recall achieves its maximum on the test dataset with k equals 15.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(recall.train,}\DataTypeTok{xlab=}\StringTok{"Number of items in leafs"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Test error"}\NormalTok{,}\DataTypeTok{type=}\StringTok{"n"}\NormalTok{,}\DataTypeTok{xaxt=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{),  }\DataTypeTok{main=}\StringTok{"Recall"}\NormalTok{,)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(ks), }\KeywordTok{as.character}\NormalTok{(ks))}
+\KeywordTok{lines}\NormalTok{(recall.train,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(recall.test,}\DataTypeTok{type=}\StringTok{"b"}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{,}\DataTypeTok{pch=}\DecValTok{20}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{),}\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"train "}\NormalTok{, }\StringTok{"test "}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-35-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot.treeBoundaries <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(mb, indexA, indexB) \{}
+\NormalTok{  grid.A <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexA]), }\KeywordTok{max}\NormalTok{(data[,indexA]), (}\KeywordTok{max}\NormalTok{(data[,indexA]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexA])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid.B <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexB]), }\KeywordTok{max}\NormalTok{(data[,indexB]), (}\KeywordTok{max}\NormalTok{(data[,indexB]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexB])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.A,grid.B)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{colnames}\NormalTok{(trainDf[, }\KeywordTok{c}\NormalTok{(indexA, indexB)])}
+  
+\NormalTok{  cart_model <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(diabetes }\OperatorTok{~}\StringTok{ }\NormalTok{. , }\DataTypeTok{data =}\NormalTok{ train[, }\KeywordTok{c}\NormalTok{(indexA, indexB, }\DecValTok{9}\NormalTok{)], }\DataTypeTok{method =} \StringTok{"class"}\NormalTok{,}\DataTypeTok{control =} \KeywordTok{rpart.control}\NormalTok{(}\DataTypeTok{minbucket =}\NormalTok{ mb))}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(cart_model, grid, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
+  
+  \KeywordTok{plot}\NormalTok{(data[, indexA], data[ ,indexB], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\KeywordTok{colnames}\NormalTok{(data)[indexA], }\DataTypeTok{ylab=}\KeywordTok{colnames}\NormalTok{(data)[indexB])}
+  
+  \KeywordTok{points}\NormalTok{(grid[, }\DecValTok{1}\NormalTok{], grid[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"Classification with minibucket size="}\NormalTok{, mb))}
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.A), }\KeywordTok{length}\NormalTok{(grid.B))}
+  \KeywordTok{contour}\NormalTok{(grid.A, grid.B, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-5}{%
+\subsubsection{}\label{section-5}}
+
+\hypertarget{glucose-and-age-2}{%
+\paragraph{Glucose and age}\label{glucose-and-age-2}}
+
+Plotting of the boundaries between columns glucose and age
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries}\NormalTok{(}\DecValTok{23}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-37-1.pdf}
+\#\#\#\# Pressure and mass Plotting of the boundaries between columns
+pressure and mass
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries}\NormalTok{(}\DecValTok{23}\NormalTok{,}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-38-1.pdf}
+\#\#\#\# Triceps and insulin Plotting of the boundaries between columns
+triceps and insulin
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries}\NormalTok{(}\DecValTok{23}\NormalTok{,}\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-39-1.pdf}
+\#\#\#\# Age and pedigree Plotting of the boundaries between columns age
+and pedigree
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries}\NormalTok{(}\DecValTok{23}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-40-1.pdf}
+\#\#\#Plotting first two components of PCA
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot.treeBoundaries.pca <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(mb) \{}
+\NormalTok{  pca.values <-}\StringTok{ }\KeywordTok{prcomp}\NormalTok{(trainDf)}\OperatorTok{$}\NormalTok{x}
+\NormalTok{  pca.df <-}\StringTok{ }\KeywordTok{as.data.frame.matrix}\NormalTok{(pca.values[,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)])}
+\NormalTok{  pca.df}\OperatorTok{$}\NormalTok{diabetes <-}\StringTok{ }\NormalTok{train}\OperatorTok{$}\NormalTok{diabetes}
+  
+\NormalTok{  grid.PC1 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\DecValTok{5}\NormalTok{)}
+\NormalTok{  grid.PC2 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\DecValTok{1}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.PC1,grid.PC2)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'PC1'}\NormalTok{,}\StringTok{'PC2'}\NormalTok{)}
+    
+\NormalTok{  cart_model <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(diabetes }\OperatorTok{~}\NormalTok{., }\DataTypeTok{data =}\NormalTok{ pca.df, }\DataTypeTok{method =} \StringTok{"class"}\NormalTok{,}\DataTypeTok{control =} \KeywordTok{rpart.control}\NormalTok{(}\DataTypeTok{minbucket =}\NormalTok{ mb))}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(cart_model, grid, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
+  \KeywordTok{plot}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{], pca.values[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(train}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\StringTok{'PC1'}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{'PC2'}\NormalTok{)}
+  \KeywordTok{points}\NormalTok{(grid}\OperatorTok{$}\NormalTok{PC1, grid}\OperatorTok{$}\NormalTok{PC2, }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"PCA Classification with mini bucket size ="}\NormalTok{, mb))}
+  
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.PC1), }\KeywordTok{length}\NormalTok{(grid.PC2))}
+  \KeywordTok{contour}\NormalTok{(grid.PC1, grid.PC2, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-6}{%
+\subsubsection{}\label{section-6}}
+
+We tried plotting the first two principal components with a different
+value of the minbucket. We see that with a lower value, the model is
+overfitting the data. We can see it in the plots with minibucket equals
+1 and 7. Furthermore, with minbucket with value more than 50, we see
+that the tree consists only of the one node, and its probably
+underfitting the data.
+
+\hypertarget{k-1-1}{%
+\paragraph{k = 1}\label{k-1-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries.pca}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-42-1.pdf}
+
+\hypertarget{k-7-1}{%
+\paragraph{k = 7}\label{k-7-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries.pca}\NormalTok{(}\DecValTok{7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-43-1.pdf}
+
+\hypertarget{k-15-1}{%
+\paragraph{k = 15}\label{k-15-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries.pca}\NormalTok{(}\DecValTok{15}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-44-1.pdf}
+
+\hypertarget{k-23-1}{%
+\paragraph{k = 23}\label{k-23-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries.pca}\NormalTok{(}\DecValTok{23}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-45-1.pdf}
+
+\hypertarget{k-35}{%
+\paragraph{k = 35}\label{k-35}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries.pca}\NormalTok{(}\DecValTok{35}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-46-1.pdf}
+
+\hypertarget{k-50-1}{%
+\paragraph{k = 50}\label{k-50-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.treeBoundaries.pca}\NormalTok{(}\DecValTok{50}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-47-1.pdf}
+\#\# Linear regression
+
+Then we explored the linear regression method. Firstly we constructed a
+model with all the predictors and we saw that only pregnant, glucose,
+mass and pedegree were significant.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ml<-}\KeywordTok{lm}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(diabetes)}\OperatorTok{~}\NormalTok{pregnant}\OperatorTok{+}\NormalTok{glucose}\OperatorTok{+}\NormalTok{pressure}\OperatorTok{+}\NormalTok{triceps}\OperatorTok{+}\NormalTok{insulin}\OperatorTok{+}\NormalTok{mass}\OperatorTok{+}\NormalTok{pedigree}\OperatorTok{+}\NormalTok{age, }\DataTypeTok{data=}\NormalTok{train)}
+\KeywordTok{summary}\NormalTok{(ml)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = as.numeric(diabetes) ~ pregnant + glucose + pressure + 
+##     triceps + insulin + mass + pedigree + age, data = train)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.13556 -0.29971 -0.08002  0.29988  0.95966 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -1.693e-02  1.221e-01  -0.139  0.88974    
+## pregnant     1.691e-02  5.752e-03   2.940  0.00341 ** 
+## glucose      6.486e-03  6.788e-04   9.555  < 2e-16 ***
+## pressure    -1.742e-03  1.514e-03  -1.151  0.25034    
+## triceps      1.510e-03  2.109e-03   0.716  0.47419    
+## insulin     -8.739e-05  1.893e-04  -0.462  0.64458    
+## mass         1.432e-02  3.343e-03   4.284 2.14e-05 ***
+## pedigree     1.409e-01  5.278e-02   2.670  0.00779 ** 
+## age          2.620e-03  1.770e-03   1.480  0.13942    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3987 on 588 degrees of freedom
+## Multiple R-squared:  0.3162, Adjusted R-squared:  0.3069 
+## F-statistic: 33.98 on 8 and 588 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+So we made a new model with the relevant variables. As we can see, they
+remain significant, so this is our final model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ml2<-}\KeywordTok{lm}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(diabetes)}\OperatorTok{~}\NormalTok{pregnant}\OperatorTok{+}\NormalTok{glucose}\OperatorTok{+}\StringTok{ }\NormalTok{mass}\OperatorTok{+}\NormalTok{pedigree, }\DataTypeTok{data=}\NormalTok{train)}
+\KeywordTok{summary}\NormalTok{(ml2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = as.numeric(diabetes) ~ pregnant + glucose + mass + 
+##     pedigree, data = train)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.1765 -0.2902 -0.0836  0.2963  0.9928 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -0.0488139  0.0945913  -0.516   0.6060    
+## pregnant     0.0210760  0.0048066   4.385 1.37e-05 ***
+## glucose      0.0064667  0.0005599  11.551  < 2e-16 ***
+## mass         0.0146206  0.0024921   5.867 7.40e-09 ***
+## pedigree     0.1418975  0.0525227   2.702   0.0071 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3986 on 592 degrees of freedom
+## Multiple R-squared:  0.312,  Adjusted R-squared:  0.3073 
+## F-statistic:  67.1 on 4 and 592 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+\#\#\#Evaluation for linear regression
+
+To look at the expressiveness of our model we computed different
+evaluation metris (accuracy, precision and recall).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{    predicted.classes.train <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(ml2, trainDf, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{    predicted.classes.train <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(predicted.classes.train, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{round}\NormalTok{(x))}
+\NormalTok{    confussionMatrixTrain =}\StringTok{ }\KeywordTok{table}\NormalTok{(predicted.classes.train, train}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    linreg.accuracy.train <-}\StringTok{ }\NormalTok{(confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(predicted.classes.train)}
+\NormalTok{    linreg.precision.train <-}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    linreg.recall.train <-}\StringTok{ }\NormalTok{confussionMatrixTrain[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTrain[}\DecValTok{1}\NormalTok{,])}
+    
+\NormalTok{    predicted.classes.test <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(ml2, testDf, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{    predicted.classes.test <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(predicted.classes.test, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{round}\NormalTok{(x))}
+    
+\NormalTok{    confussionMatrixTest <-}\StringTok{ }\KeywordTok{table}\NormalTok{(predicted.classes.test, test}\OperatorTok{$}\NormalTok{diabetes)}
+\NormalTok{    linreg.accuracy.test <-}\StringTok{ }\NormalTok{(confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(predicted.classes.test)}
+\NormalTok{    linreg.precision.test <-}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    linreg.recall.test <-}\StringTok{ }\NormalTok{confussionMatrixTest[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(confussionMatrixTest[}\DecValTok{1}\NormalTok{,])}
+\end{Highlighting}
+\end{Shaded}
+
+\#\#\#\#\#Accuracy of the model on the train dataset is 0.7654941.
+
+\#\#\#\#\#Precision of the model on the train dataset is 0.8909091.
+
+\#\#\#\#\#Recall of the model on the train dataset is 0.7777778.
+
+\#\#\#\#\#Accuracy of the model on the test dataset is 0.7777778.
+
+\#\#\#\#\#Precision of the model on the test dataset is 0.826087.
+
+\#\#\#\#\#Recall of the model on the test dataset is 0.840708.
+
+\#\#\#Decision boundaries of Linear Regression with different variables
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot.linreg.boundaries <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(indexA, indexB) \{}
+\NormalTok{  grid.A <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexA]), }\KeywordTok{max}\NormalTok{(data[,indexA]), (}\KeywordTok{max}\NormalTok{(data[,indexA]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexA])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid.B <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data[,indexB]), }\KeywordTok{max}\NormalTok{(data[,indexB]), (}\KeywordTok{max}\NormalTok{(data[,indexB]) }\OperatorTok{-}\StringTok{ }\KeywordTok{min}\NormalTok{(data[,indexB])) }\OperatorTok{/}\StringTok{ }\DecValTok{100}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.A,grid.B)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{colnames}\NormalTok{(trainDf[, }\KeywordTok{c}\NormalTok{(indexA, indexB)])}
+  
+\NormalTok{  ml <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(diabetes)}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{data =}\NormalTok{ train[, }\KeywordTok{c}\NormalTok{(indexA, indexB, }\DecValTok{9}\NormalTok{)])}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{predict}\NormalTok{(ml, grid, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{))}
+  
+  \KeywordTok{plot}\NormalTok{(data[, indexA], data[ ,indexB], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\KeywordTok{colnames}\NormalTok{(data)[indexA], }\DataTypeTok{ylab=}\KeywordTok{colnames}\NormalTok{(data)[indexB])}
+  
+  \KeywordTok{points}\NormalTok{(grid[, }\DecValTok{1}\NormalTok{], grid[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"Classification with linear regression"}\NormalTok{))}
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(predicted.classes, }\KeywordTok{length}\NormalTok{(grid.A), }\KeywordTok{length}\NormalTok{(grid.B))}
+  \KeywordTok{contour}\NormalTok{(grid.A, grid.B, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-7}{%
+\subsubsection{}\label{section-7}}
+
+\hypertarget{glucose-and-age-3}{%
+\paragraph{Glucose and age}\label{glucose-and-age-3}}
+
+Plot of the boundaries between columns glucose and age
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.linreg.boundaries}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-52-1.pdf}
+\#\#\#\# Pressure and mass Plot of the boundaries between columns
+pressure and mass
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.linreg.boundaries}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-53-1.pdf}
+\#\#\#\# Triceps and insulin Plot of the boundaries between columns
+triceps and insulin
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.linreg.boundaries}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-54-1.pdf}
+\#\#\#\# Age and pedigree Plot of the boundaries between columns age and
+pedigree
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot.linreg.boundaries}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-55-1.pdf}
+
+\#\#\#Decision boundaries of linear regression in PCA
+
+Finally we draw decision boundaries with the two first components in
+PCA.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot.linreg.pca <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{() \{}
+\NormalTok{  pca.values <-}\StringTok{ }\KeywordTok{prcomp}\NormalTok{(trainDf)}\OperatorTok{$}\NormalTok{x}
+\NormalTok{  pca.df <-}\StringTok{ }\KeywordTok{as.data.frame.matrix}\NormalTok{(pca.values[,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)])}
+\NormalTok{  pca.df}\OperatorTok{$}\NormalTok{diabetes <-}\StringTok{ }\NormalTok{train}\OperatorTok{$}\NormalTok{diabetes}
+  
+\NormalTok{  grid.PC1 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{]), }\DecValTok{5}\NormalTok{)}
+\NormalTok{  grid.PC2 <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\KeywordTok{max}\NormalTok{(pca.values[,}\DecValTok{2}\NormalTok{]), }\DecValTok{1}\NormalTok{)}
+\NormalTok{  grid <-}\StringTok{ }\KeywordTok{expand.grid}\NormalTok{(grid.PC1,grid.PC2)}
+  \KeywordTok{colnames}\NormalTok{(grid) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'PC1'}\NormalTok{,}\StringTok{'PC2'}\NormalTok{)}
+    
+\NormalTok{  ml <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(diabetes)}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{data=}\NormalTok{pca.df)}
+\NormalTok{  predicted.classes <-}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{predict}\NormalTok{(ml, grid, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{))}
+  \KeywordTok{plot}\NormalTok{(pca.values[,}\DecValTok{1}\NormalTok{], pca.values[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=}\DecValTok{20}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(train}\OperatorTok{$}\NormalTok{diabetes)], }\DataTypeTok{xlab=}\StringTok{'PC1'}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{'PC2'}\NormalTok{)}
+  \KeywordTok{points}\NormalTok{(grid}\OperatorTok{$}\NormalTok{PC1, grid}\OperatorTok{$}\NormalTok{PC2, }\DataTypeTok{pch=}\StringTok{'.'}\NormalTok{, }\DataTypeTok{col=}\NormalTok{col1[}\KeywordTok{as.numeric}\NormalTok{(predicted.classes)])  }\CommentTok{# draw grid}
+  \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(data}\OperatorTok{$}\NormalTok{diabetes),}\DataTypeTok{fill =}\NormalTok{col1)}
+  \KeywordTok{title}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"PCA classification of linear regression"}\NormalTok{))}
+  
+\NormalTok{  predicted.matrix <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.classes), }\KeywordTok{length}\NormalTok{(grid.PC1), }\KeywordTok{length}\NormalTok{(grid.PC2))}
+  \KeywordTok{contour}\NormalTok{(grid.PC1, grid.PC2, predicted.matrix, }\DataTypeTok{levels=}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{), }\DataTypeTok{drawlabels=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\KeywordTok{plot.linreg.pca}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{assigment1_files/figure-latex/unnamed-chunk-56-1.pdf}
+
+\#\#Conclusion TODO
+
+\end{document}
