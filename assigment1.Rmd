@@ -24,6 +24,7 @@ library("mlbench")
 library("caTools")
 library("class")
 library(mice)
+library("VIM")
 library(grid)
 library("rpart")
 library(GGally)
@@ -41,6 +42,8 @@ After loading the data, we found out that some columns contain NA values. Firstl
 ```{r}
 
 set.seed(101) 
+md.pattern(data, rotate.names=TRUE)
+aggr(data,delimiter=NULL, plot=TRUE)
 init = mice(data, maxit=0) 
 data <- complete(mice(data, method=init$method, predictorMatrix=init$predictorMatrix, m=5))
 ```
@@ -323,13 +326,14 @@ plot.logRegression.boundaries <- function(indexA, indexB) {
 ### {.tabset .tabset-fade .tabset-pills}
 #### Glucose and age
 Plot of the boundaries between columns glucose and age
+In this plot we observe some datapoints misclassifed, a sign of underfitting - the model oversimplifies the problem and can't efficiently capture the underlying pattern of the data.
 
 ```{r}
 plot.logRegression.boundaries(2, 8)
 ```
 #### Pressure and mass
 Plot of the boundaries between columns pressure and mass
-
+When plotting pressure vs mass we observe more outliers.
 
 ```{r}
 plot.logRegression.boundaries(3, 6)
@@ -347,7 +351,9 @@ Plot of the boundaries between columns age and pedigree
 ```{r}
 plot.logRegression.boundaries(8, 7)
 ```
-###Bundaries of logistic regression in PCA
+###Boundaries of logistic regression in PCA
+In an effort to bring out strong patterns from this datasets, we applied PCA. 
+We see emerge two groupings for each class an they cluster together, with a stronger influence from the second component (PCA2).
 ```{r}
 plot.logRegression.pca <- function() {
   pca.values <- prcomp(trainDf)$x
@@ -627,8 +633,7 @@ plot.linreg.boundaries <- function(indexA, indexB) {
   points(grid[, 1], grid[,2], pch='.', col=col1[as.numeric(predicted.classes)])  # draw grid
   legend("topleft", legend=levels(data$diabetes),fill =col1)
   title(c("Classification with linear regression"))
-  predicted.matrix <- matrix(predicted.classes, length(grid.A), length(grid.B))
-  contour(grid.A, grid.B, predicted.matrix, levels=c(1.5), drawlabels=FALSE,add=TRUE)
+  abline((1,5-ml§coefficients[1])/ml$coefficients[3],ml$coeficcients[2]/mlml§coefficients[3])
 }
 ```
 
