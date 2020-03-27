@@ -697,39 +697,8 @@ plot.linreg.pca()
 ```
 
 ##Conclusion
-<table style="width:100%">
-  <tr>
-    <th>Model</th>
-    <th>Accuracy</th>
-    <th>Precision</th>
-    <th>Recall</th>
-  </tr>
-  <tr>
-    <td>KNN</td>
-    <td>0.748538</td>
-    <td>0.8</td>
-    <td>0.8103448</td>
-  </tr>
-  <tr>
-    <td>Logistic Regression</td>
-    <td>0.7660819</td>
-    <td>0.8086957</td>
-    <td>0.8378378</td>
-  </tr>
-  <tr>
-    <td>CART</td>
-    <td>0.7368421</td>
-    <td>0.826087</td>
-    <td>0.7916667</td>
-  </tr>
-  <tr>
-    <td>Linear Regression</td>
-    <td>0.7777778</td>
-    <td>0.826087</td>
-    <td>0.840708</td>
-  </tr>
-</table>
-
+From the evaluation metrics used, Linear Regression performed better than the others, nevertheless all models seemed adequate.
+ 
 | Model               | Accuracy | Precision | Recall |
 |---------------------|----------|-----------|--------|
 | KNN                 | 0.749    | 0.8       | 0.810  |
